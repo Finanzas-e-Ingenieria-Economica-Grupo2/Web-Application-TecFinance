@@ -16,6 +16,7 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Toolbar from "primevue/toolbar";
 import InputText from "primevue/inputtext";
+import InputNumber from 'primevue/inputnumber';
 import Textarea from "primevue/textarea";
 import Button from "primevue/button";
 import Row from "primevue/row";
@@ -26,6 +27,8 @@ import Toast from "primevue/toast";
 import Dropdown from "primevue/dropdown";
 import Tag from "primevue/tag";
 import Card from "primevue/card";
+import SelectButton from 'primevue/selectbutton';
+
 
 // Router
 import router from "./router/index.js";
@@ -41,6 +44,7 @@ createApp(App)
     .component("pv-column", Column)
     .component('pv-toolbar', Toolbar)
     .component('pv-input-text', InputText)
+    .component('pv-input-number', InputNumber)
     .component('pv-textarea', Textarea)
     .component('pv-button', Button)
     .component('pv-row', Row)
@@ -51,4 +55,5 @@ createApp(App)
     .component('pv-dropdown', Dropdown)
     .component('pv-tag', Tag)
     .component('pv-card', Card)
+    .component('pv-select-button', SelectButton)
     .mount('#app')
