@@ -1,0 +1,90 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "usuario1@gmail.com",
+      "password": "usuario1",
+      "name": "usuario1"
+    },
+    {
+      "id": 2,
+      "email": "usuario2@gmail.com",
+      "password": "usuario2",
+      "name": "usuario2"
+    }
+  ],
+  "banks": [
+    {
+      "id": 1,
+      "name": "BBVA",
+      "minimumLoan": 65200,
+      "maximumLoan": 464200,
+      "bbpBasedOnHomeValue": [
+        {
+          "minimumHomeValue": 65200,
+          "maximumHomeValue": 93100,
+          "bbpTraditional": 25700,
+          "bbpSustainable": 31100
+        },
+        {
+          "minimumHomeValue": 93101,
+          "maximumHomeValue": 139400,
+          "bbpTraditional": 21400,
+          "bbpSustainable": 26800
+        },
+        {
+          "minimumHomeValue": 139401,
+          "maximumHomeValue": 232200,
+          "bbpTraditional": 19600,
+          "bbpSustainable": 25000
+        },
+        {
+          "minimumHomeValue": 232201,
+          "maximumHomeValue": 343900,
+          "bbpTraditional": 10800,
+          "bbpSustainable": 16200
+        }
+      ],
+      "initialFeeBasedOnHomeValue": [
+        {
+          "minimumHomeValue": 65200,
+          "maximumHomeValue": 232200,
+          "minimumInitialFeePercentage": 0.075
+        },
+        {
+          "minimumHomeValue": 232201,
+          "maximumHomeValue": 464200,
+          "minimumInitialFeePercentage": 0.1
+        }
+      ],
+      "lienInsurance": 0.0004641,
+      "propertyInsurance": 0.0002784,
+      "appraisalExpenses": 265,
+      "termForPayments": {
+        "minimumTerm": 30,
+        "maximumTerm": 100
+      }
+    }
+  ],
+  "offers": [
+    {
+      "id": 1,
+      "userId": 1,
+      "bankId": 1,
+      "currency": "soles",
+      "AmountTotalGracePeriod": 2,
+      "AmountPartialGracePeriod": 1,
+      "InterestRateType": "tea",
+      "homeValue": 100000,
+      "amountToFinance": 10000,
+      "isHousingSustainable": false,
+      "tea": 0.10,
+      "tna": 0.10,
+      "capitalization": "mensual",
+      "termInMonths": 100,
+      "tcea": 0.015,
+      "van": 50000,
+      "tir": 0.2
+    }
+  ]
+}
