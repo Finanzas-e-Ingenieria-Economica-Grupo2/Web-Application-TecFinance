@@ -61,6 +61,57 @@
       "propertyInsurance": 0.0002784,
       "appraisalExpenses": 265,
       "termForPayments": {
+        "minimumTerm": 60,
+        "maximumTerm": 300
+      }
+    },
+    {
+      "id": 2,
+      "name": "BCP",
+      "minimumLoan": 65200,
+      "maximumLoan": 464200,
+      "bbpBasedOnHomeValue": [
+        {
+          "minimumHomeValue": 65200,
+          "maximumHomeValue": 93100,
+          "bbpTraditional": 25700,
+          "bbpSustainable": 31100
+        },
+        {
+          "minimumHomeValue": 93101,
+          "maximumHomeValue": 139400,
+          "bbpTraditional": 21400,
+          "bbpSustainable": 26800
+        },
+        {
+          "minimumHomeValue": 139401,
+          "maximumHomeValue": 232200,
+          "bbpTraditional": 19600,
+          "bbpSustainable": 25000
+        },
+        {
+          "minimumHomeValue": 232201,
+          "maximumHomeValue": 343900,
+          "bbpTraditional": 10800,
+          "bbpSustainable": 16200
+        }
+      ],
+      "initialFeeBasedOnHomeValue": [
+        {
+          "minimumHomeValue": 65200,
+          "maximumHomeValue": 232200,
+          "minimumInitialFeePercentage": 0.075
+        },
+        {
+          "minimumHomeValue": 232201,
+          "maximumHomeValue": 464200,
+          "minimumInitialFeePercentage": 0.1
+        }
+      ],
+      "lienInsurance": 0.0004641,
+      "propertyInsurance": 0.0002784,
+      "appraisalExpenses": 265,
+      "termForPayments": {
         "minimumTerm": 30,
         "maximumTerm": 100
       }
