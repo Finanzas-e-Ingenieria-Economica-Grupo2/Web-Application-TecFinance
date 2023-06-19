@@ -195,7 +195,7 @@
       <div class="row flex bg-yellow-100">
         <div class="flex-1 flex align-items-center justify-content-start
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          Seguro Degravamen Mensual
+          Seguro Degravamen Mensual {{lienInsurance}}
         </div>
         <div class="flex-1 flex align-items-center justify-content-end
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
@@ -206,7 +206,7 @@
       <div class="row flex bg-yellow-100">
         <div class="flex-1 flex align-items-center justify-content-start
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          Seguro de Inmueble Anual
+          Seguro de Inmueble Anual {{propertyInsurance}}
         </div>
         <div class="flex-1 flex align-items-center justify-content-end
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
@@ -222,7 +222,7 @@
         <div class="flex-1 flex align-items-center justify-content-end
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
           <pv-input-number v-model="termInMonths" inputId="minmax-buttons" mode="decimal" showButtons
-                           :min="0" :max="100"></pv-input-number>
+                           :min="60" :max="300"></pv-input-number>
         </div>
       </div>
 
@@ -243,6 +243,7 @@
 </template>
 <script>
 import {defineComponent} from 'vue'
+import {BankApiService} from "../services/bank-api.service.js";
 
 export default defineComponent({
   name: "loan-content",
@@ -277,10 +278,40 @@ export default defineComponent({
         {name: 'Trimestral', code: 'trimestral'},
         {name: 'Anual', code: 'anual'}
       ],
-      lienInsurance: 0,
-      propertyInsurance: 0,
-      termInMonths: 0,
-      tcea: 0
+      lienInsurance: null,
+      propertyInsurance: null,
+      termInMonths: null,
+      tcea: 0,
+      banksService: null,
+      bank: null,
+      rangeBbp: null
+    }
+  },
+  created() {
+    this.banksService = new BankApiService();
+    this.banksService.getByName('BBVA')
+        .then(response => {
+          this.bank = response
+          this.lienInsurance = this.bank.lienInsurance;
+          this.propertyInsurance = this.bank.propertyInsurance;
+          this.termInMonths = this.bank.termForPayments.minimumTerm;
+          this.rangeBbp = this.bank.bbpBasedOnHomeValue;
+        });
+  },
+  methods:{
+
+  },
+  watch: {
+    homeValue() {
+      const bbpFounded = this.rangeBbp.find(b => {
+        return this.homeValue >= b.minimumHomeValue && this.homeValue <= b.maximumHomeValue
+      });
+
+      if (typeof bbpFounded === 'undefined') {
+        this.bbp = 0;
+      } else {
+        this.bbp = bbpFounded.bbpTraditional;
+      }
     }
   }
 })
