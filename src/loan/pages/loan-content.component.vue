@@ -14,7 +14,7 @@
         </div>
       </div>
 
-      <div class="row flex bg-yellow-100">
+<!--      <div class="row flex bg-yellow-100">
         <div class="flex-1 flex align-items-center justify-content-start
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
           # Periodos de gracia totales
@@ -36,7 +36,7 @@
           <pv-input-number v-model="amountPartialGracePeriod" inputId="minmax-buttons" mode="decimal" showButtons
                            :min="0" :max="100"></pv-input-number>
         </div>
-      </div>
+      </div>-->
 
       <div class="row flex bg-yellow-100">
         <div class="flex-1 flex align-items-center justify-content-start
@@ -251,8 +251,8 @@ export default defineComponent({
     return {
       currencyType: 'Soles',
       currencyOptions: ['Soles', 'Dólares'],
-      amountTotalGracePeriod: 0,
-      amountPartialGracePeriod: 0,
+      //amountTotalGracePeriod: 0,
+      //amountPartialGracePeriod: 0,
       homeValue: 0,
       interestRateType: {
         name: 'Tasa Efectiva Anual',
@@ -266,6 +266,8 @@ export default defineComponent({
       optionsSupport: ['Sí', 'No'],
       initialFee: 0,
       bbp: 0,
+      bbpTraditional: 0,
+      bbpSustainable: 0,
       isHousingSustainable: 'No',
       optionsSustainable: ['Sí', 'No'],
       bbpTotal: 0,
@@ -299,7 +301,24 @@ export default defineComponent({
         });
   },
   methods:{
-
+    verifyHousingSupport(){
+      if (this.isHousingSupport === 'Sí'){
+        this.bbp = 0;
+      } else{
+        this.bbp = this.bbpTraditional;
+      }
+    },
+    verifyHousingSustainable(){
+      if (this.isHousingSupport === 'No'){
+        if(this.isHousingSustainable === 'Sí'){
+          this.bbpTotal = this.bbpSustainable;
+        }else {
+          this.bbpTotal = this.bbpTraditional;
+        }
+      }else{
+        this.bbpTotal = 0;
+      }
+    }
   },
   watch: {
     homeValue() {
@@ -310,8 +329,18 @@ export default defineComponent({
       if (typeof bbpFounded === 'undefined') {
         this.bbp = 0;
       } else {
-        this.bbp = bbpFounded.bbpTraditional;
+        this.bbpTraditional = bbpFounded.bbpTraditional;
+        this.bbpSustainable = bbpFounded.bbpSustainable;
+        this.verifyHousingSupport();
+        this.verifyHousingSustainable();
       }
+    },
+    isHousingSupport(){
+      this.verifyHousingSupport();
+      this.verifyHousingSustainable();
+      },
+    isHousingSustainable(){
+      this.verifyHousingSustainable();
     }
   }
 })
