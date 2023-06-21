@@ -66,6 +66,7 @@
                            :currency="currencyType === 'Soles' ? 'PEN' : 'USD'"
                            :locale="currencyType === 'Soles' ? 'es-PE' : 'en-US'">
           </pv-input-number>
+          <pv-inline-message severity="info" @click="visibleHomeValue = true"></pv-inline-message>
         </div>
       </div>
 
@@ -94,6 +95,7 @@
                            :currency="currencyType === 'Soles' ? 'PEN' : 'USD'"
                            :locale="currencyType === 'Soles' ? 'es-PE' : 'en-US'">
           </pv-input-number>
+          <pv-inline-message severity="info" @click="visibleInitialFee = true"></pv-inline-message>
         </div>
       </div>
 
@@ -110,6 +112,7 @@
                            :currency="currencyType === 'Soles' ? 'PEN' : 'USD'"
                            :locale="currencyType === 'Soles' ? 'es-PE' : 'en-US'">
           </pv-input-number>
+          <pv-inline-message severity="info" @click="visibleBbp = true"></pv-inline-message>
         </div>
       </div>
 
@@ -240,6 +243,62 @@
     </div>
 
   </div>
+
+  <pv-dialog v-model:visible="visibleHomeValue" modal header="Valor de vivienda" :style="{ width:
+  '50vw' }">
+    <p v-if="currencyType === 'Soles'">
+      El valor de la vivienda debe rondar entre los S/ {{minimumLoan.toLocaleString('es-PE')}} y
+      los S/ {{ maximumLoan.toLocaleString('es-PE') }} para poder aplicar a los beneficios del
+      banco BBVA.
+    </p>
+    <p v-else>
+      El valor de la vivienda debe rondar entre los $ {{minimumLoan.toLocaleString('en-US')}} y
+      los $ {{ maximumLoan.toLocaleString('en-US') }} para poder aplicar a los beneficios del
+      banco BBVA.
+    </p>
+  </pv-dialog>
+
+  <pv-dialog v-model:visible="visibleInitialFee" modal header="Cuota inicial" :style="{ width:
+  '50vw' }">
+    <p>Dependiendo de cuanto sea el valor de la vivienda, BBVA dispondrá de un porcentaje para
+      calcular su cuota inicial.</p>
+    <div v-for="parameter in rangeInitialFee">
+      <p v-if="currencyType === 'Soles'">
+        Si el valor de la vivienda ronda entre los S/
+        {{parameter.minimumHomeValue.toLocaleString('es-PE')}} y los S/
+        {{parameter.maximumHomeValue.toLocaleString('es-PE')}} el porcentaje de la cuota inicial
+        será de {{parameter.minimumInitialFeePercentage * 100}}%.
+      </p>
+      <p v-else>
+        Si el valor de la vivienda ronda entre los $
+        {{parameter.minimumHomeValue.toLocaleString('en-US')}} y los $
+        {{parameter.maximumHomeValue.toLocaleString('en-US')}} el porcentaje de la cuota inicial
+        será de {{parameter.minimumInitialFeePercentage * 100}}%.
+      </p>
+    </div>
+  </pv-dialog>
+
+  <pv-dialog v-model:visible="visibleBbp" modal header="Bono el Buen Pagador" :style="{ width:
+  '50vw' }">
+    <p>El Bono al Buen Pagador es una ayuda económica directa no reembolsable que se otorga a las
+      personas que accedan al crédito MIVIVIENDA por medio de las Entidades Financieras, cuyo
+      valor fluctúa, en función al valor del inmueble, en los siguientes rangos establecidos por
+      Ley:</p>
+    <p v-if="currencyType === 'Soles'">
+      <pv-data-table :value="rangeBbp" showGridlines tableStyle="min-width: 50rem">
+        <pv-column field="minimumHomeValue"
+                   header="Valor de mínimo de vivienda"></pv-column>
+        <pv-column field="maximumHomeValue"
+                   header="Valor de máximo de vivienda"></pv-column>
+        <pv-column field="bbpTraditional" header="Valor del BBP Tradicional"></pv-column>
+        <pv-column field="bbpSustainable" header="Valor del BBP Sostenible"></pv-column>
+      </pv-data-table>
+    </p>
+    <p v-else>
+      No hay datos expresados en dólares para mostrar.
+    </p>
+  </pv-dialog>
+
 </template>
 <script>
 import {defineComponent} from 'vue'
@@ -274,11 +333,16 @@ export default defineComponent({
       amountToFinance: 0,
       tea: 0,
       tna: 0,
-      capitalization: '',
+      capitalization: null,
       capitalizationOptions:[
-        {name: 'Mensual', code: 'mensual'},
-        {name: 'Trimestral', code: 'trimestral'},
-        {name: 'Anual', code: 'anual'}
+        {name: 'Diaria', code: 'diaria', days: 1 },
+        {name: 'Quincenal', code: 'quincenal', days: 15},
+        {name: 'Mensual', code: 'mensual', days: 30},
+        {name: 'Bimestral', code: 'bimestral', days: 60},
+        {name: 'Trimestral', code: 'trimestral', days: 90},
+        {name: 'Cuatrimestral', code: 'cuatrimestral', days: 120},
+        {name: 'Semestral', code: 'semestral', days: 180},
+        {name: 'Anual', code: 'anual', days: 360}
       ],
       lienInsurance: null,
       propertyInsurance: null,
@@ -286,7 +350,12 @@ export default defineComponent({
       tcea: 0,
       banksService: null,
       bank: null,
-      rangeBbp: null
+      rangeBbp: null,
+      visibleHomeValue: false,
+      visibleInitialFee: false,
+      visibleBbp: false,
+      minimumLoan: null,
+      maximumLoan: null
     }
   },
   created() {
@@ -294,13 +363,60 @@ export default defineComponent({
     this.banksService.getByName('BBVA')
         .then(response => {
           this.bank = response
+          this.minimumLoan = this.bank.minimumLoan;
+          this.maximumLoan = this.bank.maximumLoan;
           this.lienInsurance = this.bank.lienInsurance;
           this.propertyInsurance = this.bank.propertyInsurance;
           this.termInMonths = this.bank.termForPayments.minimumTerm;
           this.rangeBbp = this.bank.bbpBasedOnHomeValue;
+          this.rangeInitialFee = this.bank.initialFeeBasedOnHomeValue;
         });
   },
+  computed:{
+
+  },
+  watch: {
+    homeValue() {
+      this.initializeInitialFee();
+      this.initializeBbpAndBbpTotal();
+      this.calculateAmountToFinance();
+    },
+    isHousingSupport(){
+      this.verifyHousingSupport();
+      this.verifyHousingSustainable();
+      this.calculateAmountToFinance();
+    },
+    isHousingSustainable(){
+      this.verifyHousingSustainable();
+      this.calculateAmountToFinance();
+    }
+  },
   methods:{
+    initializeInitialFee(){
+      const initialFeeFounded = this.rangeInitialFee.find(b => {
+        return this.homeValue >= b.minimumHomeValue && this.homeValue <= b.maximumHomeValue
+      });
+
+      if (typeof initialFeeFounded === 'undefined') {
+        this.initialFee = 0;
+      } else {
+        this.initialFee = this.homeValue * initialFeeFounded.minimumInitialFeePercentage;
+      }
+    },
+    initializeBbpAndBbpTotal(){
+      const bbpFounded = this.rangeBbp.find(b => {
+        return this.homeValue >= b.minimumHomeValue && this.homeValue <= b.maximumHomeValue
+      });
+
+      if (typeof bbpFounded === 'undefined') {
+        this.bbp = 0;
+      } else {
+        this.bbpTraditional = bbpFounded.bbpTraditional;
+        this.bbpSustainable = bbpFounded.bbpSustainable;
+        this.verifyHousingSupport();
+        this.verifyHousingSustainable();
+      }
+    },
     verifyHousingSupport(){
       if (this.isHousingSupport === 'Sí'){
         this.bbp = 0;
@@ -318,29 +434,9 @@ export default defineComponent({
       }else{
         this.bbpTotal = 0;
       }
-    }
-  },
-  watch: {
-    homeValue() {
-      const bbpFounded = this.rangeBbp.find(b => {
-        return this.homeValue >= b.minimumHomeValue && this.homeValue <= b.maximumHomeValue
-      });
-
-      if (typeof bbpFounded === 'undefined') {
-        this.bbp = 0;
-      } else {
-        this.bbpTraditional = bbpFounded.bbpTraditional;
-        this.bbpSustainable = bbpFounded.bbpSustainable;
-        this.verifyHousingSupport();
-        this.verifyHousingSustainable();
-      }
     },
-    isHousingSupport(){
-      this.verifyHousingSupport();
-      this.verifyHousingSustainable();
-      },
-    isHousingSustainable(){
-      this.verifyHousingSustainable();
+    calculateAmountToFinance(){
+      this.amountToFinance = this.homeValue - this.initialFee - this.bbpTotal;
     }
   }
 })

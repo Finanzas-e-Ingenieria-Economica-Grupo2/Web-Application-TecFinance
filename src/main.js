@@ -28,6 +28,7 @@ import Dropdown from "primevue/dropdown";
 import Tag from "primevue/tag";
 import Card from "primevue/card";
 import SelectButton from 'primevue/selectbutton';
+import InlineMessage from 'primevue/inlinemessage';
 
 
 // Router
@@ -56,4 +57,5 @@ createApp(App)
     .component('pv-tag', Tag)
     .component('pv-card', Card)
     .component('pv-select-button', SelectButton)
+    .component('pv-inline-message', InlineMessage)
     .mount('#app')
