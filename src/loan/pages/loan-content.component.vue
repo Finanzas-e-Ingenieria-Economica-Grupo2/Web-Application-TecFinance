@@ -110,7 +110,7 @@
                            :inputId="currencyType === 'Soles' ? 'currency-pen' : 'currency-us'"
                            mode="currency"
                            :currency="currencyType === 'Soles' ? 'PEN' : 'USD'"
-                           :locale="currencyType === 'Soles' ? 'es-PE' : 'en-US'">
+                           :locale="currencyType === 'Soles' ? 'es-PE' : 'en-US'" readonly>
           </pv-input-number>
           <pv-inline-message severity="info" @click="visibleBbp = true"></pv-inline-message>
         </div>
@@ -139,7 +139,7 @@
                            :inputId="currencyType === 'Soles' ? 'currency-pen' : 'currency-us'"
                            mode="currency"
                            :currency="currencyType === 'Soles' ? 'PEN' : 'USD'"
-                           :locale="currencyType === 'Soles' ? 'es-PE' : 'en-US'">
+                           :locale="currencyType === 'Soles' ? 'es-PE' : 'en-US'" readonly>
           </pv-input-number>
         </div>
       </div>
@@ -155,7 +155,7 @@
                            :inputId="currencyType === 'Soles' ? 'currency-pen' : 'currency-us'"
                            mode="currency"
                            :currency="currencyType === 'Soles' ? 'PEN' : 'USD'"
-                           :locale="currencyType === 'Soles' ? 'es-PE' : 'en-US'">
+                           :locale="currencyType === 'Soles' ? 'es-PE' : 'en-US'" readonly>
           </pv-input-number>
         </div>
       </div>
@@ -168,6 +168,7 @@
         <div class="flex-1 flex align-items-center justify-content-end
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
           <pv-input-number v-model="tea" inputId="percent" suffix=" %"></pv-input-number>
+          <pv-inline-message severity="info" @click="visibleTea = true"></pv-inline-message>
         </div>
       </div>
 
@@ -179,6 +180,7 @@
         <div class="flex-1 flex align-items-center justify-content-end
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
           <pv-input-number v-model="tna" inputId="percent" suffix=" %"></pv-input-number>
+          <pv-inline-message severity="info" @click="visibleTna = true"></pv-inline-message>
         </div>
       </div>
 
@@ -198,22 +200,26 @@
       <div class="row flex bg-yellow-100">
         <div class="flex-1 flex align-items-center justify-content-start
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          Seguro Degravamen Mensual {{lienInsurance}}
+          Seguro Degravamen Mensual
         </div>
         <div class="flex-1 flex align-items-center justify-content-end
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          <pv-input-number v-model="lienInsurance" inputId="percent" suffix=" %"></pv-input-number>
+          <pv-input-number v-model="lienInsurancePercentage" inputId="percent" suffix=" %" step="0.0001"
+                           readonly></pv-input-number>
+          <pv-inline-message severity="info" @click="visibleLienInsurance = true"></pv-inline-message>
         </div>
       </div>
 
       <div class="row flex bg-yellow-100">
         <div class="flex-1 flex align-items-center justify-content-start
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          Seguro de Inmueble Anual {{propertyInsurance}}
+          Seguro de Inmueble Anual
         </div>
         <div class="flex-1 flex align-items-center justify-content-end
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          <pv-input-number v-model="propertyInsurance" inputId="percent" suffix=" %"></pv-input-number>
+          <pv-input-number v-model="propertyInsurancePercentage" inputId="percent"
+                           suffix=" %" readonly></pv-input-number>
+          <pv-inline-message severity="info" @click="visiblePropertyInsurance = true"></pv-inline-message>
         </div>
       </div>
 
@@ -236,7 +242,7 @@
         </div>
         <div class="flex-1 flex align-items-center justify-content-end
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          <pv-input-number v-model="tcea" inputId="percent" suffix=" %"></pv-input-number>
+          <pv-input-number v-model="tcea" inputId="percent" suffix=" %" readonly></pv-input-number>
         </div>
       </div>
 
@@ -299,6 +305,35 @@
     </p>
   </pv-dialog>
 
+  <pv-dialog v-model:visible="visibleTea" modal header="Tasa Efectiva Anual" :style="{ width:
+  '50vw' }">
+    <p>Tasa referencial sujeta a otras condiciones de la entidad financiera.</p>
+  </pv-dialog>
+
+  <pv-dialog v-model:visible="visibleTna" modal header="Tasa Nominal Anual" :style="{ width:
+  '50vw' }">
+    <p>Tasa referencial sujeta a otras condiciones de la entidad financiera.</p>
+  </pv-dialog>
+
+  <pv-dialog v-model:visible="visibleLienInsurance" modal header="Seguro Degravamen Mensual"
+             :style="{ width:'50vw' }">
+    <p>Es un seguro que brinda tranquilidad a tus seres queridos en caso el beneficiario fallezca
+      o sufra de invalidez total o permanente por accidente o enfermedad. La deuda no se
+      transfiere a otro miembro de su familia.</p>
+    <p class="p-error">En la pantalla principal solo se muestra el Seguro Degravamen Mensual con el redondeo a
+      solo 3 decimales pero su valor completo es <strong>{{lienInsurancePercentage}}</strong>%</p>
+  </pv-dialog>
+
+  <pv-dialog v-model:visible="visiblePropertyInsurance" modal header="Seguro de Inmueble Anual"
+             :style="{ width:'50vw' }">
+    <p>Seguro que brinda protección a una propiedad y sus bienes en caso de cualquier tipo de
+      siniestro , como incendios, robos, daños causados por la naturaleza u otros accidentes.
+      Este seguro también puede cubrir la responsabilidad civil del propietario ante terceros.</p>
+    <p class="p-error">En la pantalla principal solo se muestra el Seguro de Inmueble Mensual con
+      el redondeo a solo 3 decimales pero su valor completo es <strong>{{propertyInsurancePercentage }}
+      </strong>%</p>
+  </pv-dialog>
+
 </template>
 <script>
 import {defineComponent} from 'vue'
@@ -354,6 +389,10 @@ export default defineComponent({
       visibleHomeValue: false,
       visibleInitialFee: false,
       visibleBbp: false,
+      visibleTea: false,
+      visibleTna: false,
+      visibleLienInsurance: false,
+      visiblePropertyInsurance: false,
       minimumLoan: null,
       maximumLoan: null
     }
@@ -373,7 +412,12 @@ export default defineComponent({
         });
   },
   computed:{
-
+    lienInsurancePercentage(){
+      return this.lienInsurance * 100;
+    },
+    propertyInsurancePercentage(){
+      return this.propertyInsurance * 100;
+    }
   },
   watch: {
     homeValue() {
