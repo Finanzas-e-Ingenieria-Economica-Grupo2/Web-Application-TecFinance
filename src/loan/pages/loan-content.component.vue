@@ -93,7 +93,7 @@
                            :inputId="currencyType === 'Soles' ? 'currency-pen' : 'currency-us'"
                            mode="currency"
                            :currency="currencyType === 'Soles' ? 'PEN' : 'USD'"
-                           :locale="currencyType === 'Soles' ? 'es-PE' : 'en-US'">
+                           :locale="currencyType === 'Soles' ? 'es-PE' : 'en-US'" readonly>
           </pv-input-number>
           <pv-inline-message severity="info" @click="visibleInitialFee = true"></pv-inline-message>
         </div>
@@ -248,6 +248,13 @@
 
     </div>
 
+    <pv-toast></pv-toast>
+    <pv-confirm-dialog></pv-confirm-dialog>
+
+    <div class="flex justify-content-center flex-wrap card-container bg-yellow-100">
+      <pv-button label="Calcular cronograma" class="m-2 px-5 py-3"
+                 @click="confirm()"></pv-button>
+    </div>
   </div>
 
   <pv-dialog v-model:visible="visibleHomeValue" modal header="Valor de vivienda" :style="{ width:
@@ -308,11 +315,13 @@
   <pv-dialog v-model:visible="visibleTea" modal header="Tasa Efectiva Anual" :style="{ width:
   '50vw' }">
     <p>Tasa referencial sujeta a otras condiciones de la entidad financiera.</p>
+    <p>No puede ser cero.</p>
   </pv-dialog>
 
   <pv-dialog v-model:visible="visibleTna" modal header="Tasa Nominal Anual" :style="{ width:
   '50vw' }">
     <p>Tasa referencial sujeta a otras condiciones de la entidad financiera.</p>
+    <p>No puede ser cero.</p>
   </pv-dialog>
 
   <pv-dialog v-model:visible="visibleLienInsurance" modal header="Seguro Degravamen Mensual"
@@ -333,6 +342,44 @@
       el redondeo a solo 3 decimales pero su valor completo es <strong>{{propertyInsurancePercentage }}
       </strong>%</p>
   </pv-dialog>
+
+  <!--NO SERA NECESARIO-->
+  <pv-dialog v-model:visible="visibleSummary" modal header="Resumen"
+             :style="{ width:'50vw' }">
+    <div class="flex bg-yellow-500 m-1">
+      <div class="flex-1 flex align-items-center justify-content-start
+                    font-bold text-gray-900 px-3 border-round">
+        <p>Valor de vivienda: </p>
+      </div>
+      <div class="flex-1 flex align-items-center justify-content-end
+                    font-bold text-gray-900 px-3 border-round">
+        <p v-if="currencyType === 'Soles'">S/ {{ homeValue.toLocaleString('es-PE') }}</p>
+        <p v-else>$ {{ homeValue.toLocaleString('en-US') }}</p>
+      </div>
+    </div>
+
+    <div class="flex bg-yellow-500 m-1">
+      <div class="flex-1 flex align-items-center justify-content-start
+                    font-bold text-gray-900 px-3 border-round">
+        <p>Valor de vivienda: </p>
+      </div>
+      <div class="flex-1 flex align-items-center justify-content-end
+                    font-bold text-gray-900 px-3 border-round">
+        <p v-if="currencyType === 'Soles'">S/ {{ homeValue.toLocaleString('es-PE') }}</p>
+        <p v-else>$ {{ homeValue.toLocaleString('en-US') }}</p>
+      </div>
+    </div>
+
+  </pv-dialog>
+
+  <pv-dialog v-model:visible="visibleErrorMessages" modal header="Errores"
+             :style="{ width:'50vw' }">
+    <p v-if="homeValueError !== null" class="p-error"><li>{{homeValueError}}</li></p>
+    <p v-if="teaError !== null" class="p-error"><li>{{teaError}}</li></p>
+    <p v-if="tnaError !== null" class="p-error"><li>{{tnaError}}</li></p>
+    <p v-if="capitalizationError !== null" class="p-error"><li>{{capitalizationError}}</li></p>
+  </pv-dialog>
+
 
 </template>
 <script>
@@ -393,8 +440,16 @@ export default defineComponent({
       visibleTna: false,
       visibleLienInsurance: false,
       visiblePropertyInsurance: false,
+      visibleSummary: false,
+      visibleErrorMessages: false,
+
       minimumLoan: null,
-      maximumLoan: null
+      maximumLoan: null,
+
+      homeValueError: null,
+      teaError: null,
+      tnaError: null,
+      capitalizationError: null
     }
   },
   created() {
@@ -433,6 +488,9 @@ export default defineComponent({
     isHousingSustainable(){
       this.verifyHousingSustainable();
       this.calculateAmountToFinance();
+    },
+    visibleErrorMessages(){
+      this.evaluateForm();
     }
   },
   methods:{
@@ -481,6 +539,57 @@ export default defineComponent({
     },
     calculateAmountToFinance(){
       this.amountToFinance = this.homeValue - this.initialFee - this.bbpTotal;
+    },
+    evaluateForm(){
+      let countErrors = 0;
+
+      if(this.homeValue === 0) {
+        this.homeValueError = "Revisar el valor de la vivienda";
+        countErrors += 1;
+      }
+      else this.homeValueError = null;
+
+      if(this.tea === 0 && this.interestRateType.code === 'TEA') {
+        this.teaError = "Revisar la Tasa Efectiva Anual";
+        countErrors += 1;
+      }
+      else this.teaError = null;
+
+      if(this.tna === 0 && this.interestRateType.code === 'TNA') {
+        this.tnaError = "Revisar la Tasa Nominal Anual";
+        countErrors += 1;
+      }
+      else this.tnaError = null;
+
+      if(this.capitalization === null && this.interestRateType.code === 'TNA') {
+        this.capitalizationError = "Revisar la capitalización";
+        countErrors += 1;
+      }
+      else this.tnaError = null;
+
+      return countErrors !== 0;
+    },
+    confirm(){
+      this.$confirm.require({
+        message: '¿Estas seguro de querer proceder?',
+        header: 'Confirmación',
+        icon: 'pi pi-exclamation-triangle',
+        accept: () => {
+          if (this.evaluateForm()){
+            this.visibleErrorMessages = true;
+            this.$toast.add({ severity: 'error', summary: 'Rechazado', detail: 'Datos invalidos',
+              life: 3000 });
+          }
+          else {
+            this.visibleErrorMessages = false;
+            this.$toast.add({ severity: 'success', summary: 'Aceptado', detail: 'Datos aceptados',
+              life: 3000 });
+          }
+        },
+        reject: () => {
+
+        }
+      });
     }
   }
 })

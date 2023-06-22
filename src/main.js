@@ -29,6 +29,7 @@ import Tag from "primevue/tag";
 import Card from "primevue/card";
 import SelectButton from 'primevue/selectbutton';
 import InlineMessage from 'primevue/inlinemessage';
+import ConfirmDialog from 'primevue/confirmdialog';
 
 
 // Router
@@ -37,10 +38,14 @@ import router from "./router/index.js";
 // Importamos notificaciones
 import ToastService from "primevue/toastservice";
 
+import ConfirmationService from 'primevue/confirmationservice';
+
+
 createApp(App)
     .use(router)
     .use(PrimeVue, { ripple: true })
     .use(ToastService)
+    .use(ConfirmationService)
     .component('pv-data-table', DataTable)
     .component("pv-column", Column)
     .component('pv-toolbar', Toolbar)
@@ -58,4 +63,5 @@ createApp(App)
     .component('pv-card', Card)
     .component('pv-select-button', SelectButton)
     .component('pv-inline-message', InlineMessage)
+    .component('pv-confirm-dialog', ConfirmDialog)
     .mount('#app')
