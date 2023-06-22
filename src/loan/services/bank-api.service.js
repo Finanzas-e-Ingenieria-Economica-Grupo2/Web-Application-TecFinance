@@ -8,8 +8,8 @@ export class BankApiService {
     getByName(name) {
         return http.get(`/banks?name=${name}`)
             .then(response => {
-                const banks = response.data; // get an array
-                const bank = banks.find(b => b.name === name); // get an object
+                const bankArray = response.data; // get an array
+                const bank = bankArray.find(b => b.name === name); // get an object
                 return bank;
             });
     }
