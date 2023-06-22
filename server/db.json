@@ -139,5 +139,55 @@
       "van": 50000,
       "tir": 0.2
     }
+  ],
+  "payments": [
+    {
+      "id": 1,
+      "offerId": 1,
+      "CurrentPeriod": 1,
+      "Tep": 0.5,
+      "GracePeriod": "S",
+      "InitialBalance": 5000,
+      "FinalBalance": 900,
+      "Interest": 20.56,
+      "Amortization": 100,
+      "Fee": 200,
+      "TotalFee": 250,
+      "LienInsurance": 16.4,
+      "PropertyInsurance": 18.4,
+      "ValuationExpenses": 280
+    },
+    {
+      "id": 2,
+      "offerId": 1,
+      "CurrentPeriod": 2,
+      "Tep": 0.5,
+      "GracePeriod": "S",
+      "InitialBalance": 4000,
+      "FinalBalance": 900,
+      "Interest": 20.56,
+      "Amortization": 100,
+      "Fee": 200,
+      "TotalFee": 250,
+      "LienInsurance": 16.4,
+      "PropertyInsurance": 18.4,
+      "ValuationExpenses": 280
+    },
+    {
+      "id": 3,
+      "offerId": 1,
+      "CurrentPeriod": 3,
+      "Tep": 0.5,
+      "GracePeriod": "S",
+      "InitialBalance": 3000,
+      "FinalBalance": 900,
+      "Interest": 20.56,
+      "Amortization": 100,
+      "Fee": 200,
+      "TotalFee": 250,
+      "LienInsurance": 16.4,
+      "PropertyInsurance": 18.4,
+      "ValuationExpenses": 280
+    }
   ]
 }
