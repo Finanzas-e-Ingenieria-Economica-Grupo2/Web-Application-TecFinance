@@ -5,7 +5,8 @@ const router = createRouter({
     history: createWebHistory(),
     routes: [
         {path: "/loan", name: "loan", component: () => import("../loan/pages/loan-content.component.vue")},
-        {path: "/", redirect: "/loan"}
+        {path: "/", redirect: "/payments"},
+        {path: "/payments", name: "payments", component: () => import("../payments/pages/payment-content.component.vue")}
         /* Ejemplos
         {path:"/home", component:HomeComponent},
         {path:"/", redirect:"/home"},
