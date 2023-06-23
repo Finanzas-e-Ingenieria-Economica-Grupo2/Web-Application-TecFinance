@@ -200,6 +200,19 @@
       <div class="row flex bg-yellow-100">
         <div class="flex-1 flex align-items-center justify-content-start
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
+          Frecuencia de pagos
+        </div>
+        <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
+          <pv-dropdown v-model="frequency" :options="frequencyOptions" optionLabel="name"
+                       placeholder="Select a frequency"
+                       class="w-full md:w-14rem"></pv-dropdown>
+        </div>
+      </div>
+
+      <div class="row flex bg-yellow-100">
+        <div class="flex-1 flex align-items-center justify-content-start
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
           Seguro Degravamen Mensual
         </div>
         <div class="flex-1 flex align-items-center justify-content-end
@@ -405,7 +418,6 @@
     <p v-if="capitalizationError !== null" class="p-error"><li>{{capitalizationError}}</li></p>
   </pv-dialog>
 
-
 </template>
 <script>
 import {BankApiService} from "../services/bank-api.service.js";
@@ -439,6 +451,21 @@ export default {
         days: 1
       },
       capitalizationOptions:[
+        {name: 'Diaria', code: 'diaria', days: 1 },
+        {name: 'Quincenal', code: 'quincenal', days: 15},
+        {name: 'Mensual', code: 'mensual', days: 30},
+        {name: 'Bimestral', code: 'bimestral', days: 60},
+        {name: 'Trimestral', code: 'trimestral', days: 90},
+        {name: 'Cuatrimestral', code: 'cuatrimestral', days: 120},
+        {name: 'Semestral', code: 'semestral', days: 180},
+        {name: 'Anual', code: 'anual', days: 360}
+      ],
+      frequency: {
+        name: 'Diaria',
+        code: 'diaria',
+        days: 1
+      },
+      frequencyOptions:[
         {name: 'Diaria', code: 'diaria', days: 1 },
         {name: 'Quincenal', code: 'quincenal', days: 15},
         {name: 'Mensual', code: 'mensual', days: 30},
@@ -638,6 +665,7 @@ export default {
               tea: this.tea,
               tna: this.tna,
               capitalization: this.capitalization.code,
+              frequency: this.frequency.code,
               termInMonths: this.termInMonths,
               tcea: null,
               van: null,
