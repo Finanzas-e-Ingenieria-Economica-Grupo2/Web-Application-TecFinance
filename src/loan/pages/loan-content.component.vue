@@ -540,6 +540,7 @@ export default {
   },
   watch: {
     homeValue() {
+      this.validateHomeValue();
       this.initializeInitialFee();
       this.initializeBbpAndBbpTotal();
       this.calculateAmountToFinance();
@@ -553,11 +554,26 @@ export default {
       this.verifyHousingSustainable();
       this.calculateAmountToFinance();
     },
+    tea(){
+      this.validateTea();
+    },
     visibleErrorMessages(){
       this.evaluateForm();
     }
   },
   methods:{
+    validateHomeValue() {
+      if (this.homeValue < 0) {
+        console.log("se ejecuta la validación de negativos")
+        this.homeValue = 0;
+      }
+    },
+    validateTea() {
+      if (this.tea < 0) {
+        console.log("se ejecuta la validación de negativos")
+        this.tea = 0;
+      }
+    },
     initializeInitialFee(){
       const initialFeeFounded = this.rangeInitialFee.find(b => {
         return this.homeValue >= b.minimumHomeValue && this.homeValue <= b.maximumHomeValue
