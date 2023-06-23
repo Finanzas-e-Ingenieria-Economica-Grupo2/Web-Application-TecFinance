@@ -52,8 +52,9 @@ export default {
     };
   },
   created(){
+    console.log(this.$route.params.offerId);
     this.paymentsService = new PaymentApiService();
-    this.paymentsService.getByOfferId(1).then((data) => (this.payments = data));
+    //this.paymentsService.getByOfferId(this.offerId).then((data) => (this.payments = data));
   },
   mounted() {
 

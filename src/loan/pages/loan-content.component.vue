@@ -226,6 +226,23 @@
       <div class="row flex bg-yellow-100">
         <div class="flex-1 flex align-items-center justify-content-start
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
+          Gastos de tasación
+        </div>
+        <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
+          <pv-input-number v-model="appraisalExpenses"
+                           :inputId="currencyType === 'Soles' ? 'currency-pen' : 'currency-us'"
+                           mode="currency"
+                           :currency="currencyType === 'Soles' ? 'PEN' : 'USD'"
+                           :locale="currencyType === 'Soles' ? 'es-PE' : 'en-US'" readonly>
+          </pv-input-number>
+          <pv-inline-message severity="info" @click="visibleAppraisalExpenses = true"></pv-inline-message>
+        </div>
+      </div>
+
+      <div class="row flex bg-yellow-100">
+        <div class="flex-1 flex align-items-center justify-content-start
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
           Plazo (en meses)
         </div>
         <div class="flex-1 flex align-items-center justify-content-end
@@ -343,6 +360,14 @@
       </strong>%</p>
   </pv-dialog>
 
+  <pv-dialog v-model:visible="visibleAppraisalExpenses" modal header="Gastos de tasación"
+             :style="{ width:'50vw' }">
+    <p>Un gasto de tasación se refiere al costo o tarifa que se cobra por llevar a cabo una
+      tasación o valoración de un inmueble. La tasación es un proceso en el cual se determina el
+      valor estimado de una propiedad, teniendo en cuenta diversos factores como la ubicación,
+      características físicas, estado de conservación, mercado inmobiliario, entre otros.</p>
+  </pv-dialog>
+
   <!--NO SERA NECESARIO-->
   <pv-dialog v-model:visible="visibleSummary" modal header="Resumen"
              :style="{ width:'50vw' }">
@@ -383,18 +408,19 @@
 
 </template>
 <script>
-import {defineComponent} from 'vue'
 import {BankApiService} from "../services/bank-api.service.js";
+import {OfferApiService} from "../services/offer-api.service.js";
+import router from "../../router/index.js";
 
-export default defineComponent({
+export default {
   name: "loan-content",
   data() {
     return {
+      //amountTotalGracePeriod
+      //amountPartialGracePeriod
+      homeValue: 0,
       currencyType: 'Soles',
       currencyOptions: ['Soles', 'Dólares'],
-      //amountTotalGracePeriod: 0,
-      //amountPartialGracePeriod: 0,
-      homeValue: 0,
       interestRateType: {
         name: 'Tasa Efectiva Anual',
         code: 'TEA'
@@ -405,17 +431,13 @@ export default defineComponent({
       ],
       isHousingSupport: 'No',
       optionsSupport: ['Sí', 'No'],
-      initialFee: 0,
-      bbp: 0,
-      bbpTraditional: 0,
-      bbpSustainable: 0,
       isHousingSustainable: 'No',
       optionsSustainable: ['Sí', 'No'],
-      bbpTotal: 0,
-      amountToFinance: 0,
-      tea: 0,
-      tna: 0,
-      capitalization: null,
+      capitalization: {
+        name: 'Diaria',
+        code: 'diaria',
+        days: 1
+      },
       capitalizationOptions:[
         {name: 'Diaria', code: 'diaria', days: 1 },
         {name: 'Quincenal', code: 'quincenal', days: 15},
@@ -426,13 +448,27 @@ export default defineComponent({
         {name: 'Semestral', code: 'semestral', days: 180},
         {name: 'Anual', code: 'anual', days: 360}
       ],
+      initialFee: 0,
+      bbp: 0,
+      bbpTraditional: 0,
+      bbpSustainable: 0,
+      bbpTotal: 0,
+      amountToFinance: 0,
+      tea: 0,
+      tna: 0,
       lienInsurance: null,
       propertyInsurance: null,
+      appraisalExpenses: null,
       termInMonths: null,
       tcea: 0,
+      rangeBbp: null,
+      minimumLoan: null,
+      maximumLoan: null,
+
       banksService: null,
       bank: null,
-      rangeBbp: null,
+      offersService: null,
+
       visibleHomeValue: false,
       visibleInitialFee: false,
       visibleBbp: false,
@@ -440,11 +476,9 @@ export default defineComponent({
       visibleTna: false,
       visibleLienInsurance: false,
       visiblePropertyInsurance: false,
+      visibleAppraisalExpenses: false,
       visibleSummary: false,
       visibleErrorMessages: false,
-
-      minimumLoan: null,
-      maximumLoan: null,
 
       homeValueError: null,
       teaError: null,
@@ -461,10 +495,13 @@ export default defineComponent({
           this.maximumLoan = this.bank.maximumLoan;
           this.lienInsurance = this.bank.lienInsurance;
           this.propertyInsurance = this.bank.propertyInsurance;
+          this.appraisalExpenses = this.bank.appraisalExpenses;
           this.termInMonths = this.bank.termForPayments.minimumTerm;
           this.rangeBbp = this.bank.bbpBasedOnHomeValue;
           this.rangeInitialFee = this.bank.initialFeeBasedOnHomeValue;
         });
+
+    this.offersService = new OfferApiService();
   },
   computed:{
     lienInsurancePercentage(){
@@ -561,29 +598,106 @@ export default defineComponent({
       }
       else this.tnaError = null;
 
-      if(this.capitalization === null && this.interestRateType.code === 'TNA') {
-        this.capitalizationError = "Revisar la capitalización";
-        countErrors += 1;
-      }
-      else this.tnaError = null;
+      // if(this.capitalization === null && this.interestRateType.code === 'TNA') {
+      //   this.capitalizationError = "Revisar la capitalización";
+      //   countErrors += 1;
+      // }
+      // else this.tnaError = null;
 
       return countErrors !== 0;
     },
-    confirm(){
+    async confirm(){
       this.$confirm.require({
         message: '¿Estas seguro de querer proceder?',
         header: 'Confirmación',
         icon: 'pi pi-exclamation-triangle',
-        accept: () => {
-          if (this.evaluateForm()){
+        accept: async () => {
+          if (this.evaluateForm()) {
             this.visibleErrorMessages = true;
-            this.$toast.add({ severity: 'error', summary: 'Rechazado', detail: 'Datos invalidos',
-              life: 3000 });
-          }
-          else {
+            this.$toast.add({
+              severity: 'error', summary: 'Rechazado', detail: 'Datos invalidos',
+              life: 3000
+            });
+          } else {
             this.visibleErrorMessages = false;
-            this.$toast.add({ severity: 'success', summary: 'Aceptado', detail: 'Datos aceptados',
-              life: 3000 });
+            this.$toast.add({
+              severity: 'success', summary: 'Aceptado', detail: 'Datos aceptados',
+              life: 3000
+            });
+
+            var offer = {
+              userId: 1,
+              bankId: 1,
+              currency: this.currencyType,
+              interestRateType: this.interestRateType.code,
+              homeValue: this.homeValue,
+              initialFee: this.initialFee,
+              amountToFinance: this.amountToFinance,
+              isHousingSupport: this.isHousingSupport === 'No' ? false : true,
+              isHousingSustainable: this.isHousingSustainable === 'No' ? false : true,
+              tea: this.tea,
+              tna: this.tna,
+              capitalization: this.capitalization.code,
+              termInMonths: this.termInMonths,
+              tcea: null,
+              van: null,
+              tir: null
+            }
+
+            await this.offersService.add(offer)
+                .then(response => {
+                  console.log("Oferta agregada con éxito");
+                })
+                .catch(error => {
+                  console.error("Error al agregar la oferta:", error);
+                });
+
+            var offerIdCurrent = null;
+
+            await this.offersService.getOfferByUserId(1)
+                .then(response => {
+                  console.log("Oferta obtenida con éxito");
+                  offerIdCurrent = response.id;
+                })
+                .catch(error => {
+                  console.error("Error al conseguir el id de oferta actual:", error);
+                });
+
+            var offerSended = {
+              id: offerIdCurrent,
+              currency: this.currencyType,
+              interestRateType: this.interestRateType.code,
+              homeValue: this.homeValue,
+              initialFee: this.initialFee,
+              amountToFinance: this.amountToFinance,
+              tea: this.tea,
+              tna: this.tna,
+              capitalization: this.capitalization.code,
+              termInMonths: this.termInMonths,
+              lienInsurance: this.lienInsurance,
+              propertyInsurance: this.propertyInsurance,
+              appraisalExpenses: this.appraisalExpenses
+            };
+
+            // this.$router.push({
+            //   name: 'payments',
+            //   props: {
+            //     offerId: offerIdCurrent,
+            //     currency: this.currencyType,
+            //     interestRateType: this.interestRateType.code,
+            //     homeValue: this.homeValue,
+            //     initialFee: this.initialFee,
+            //     amountToFinance: this.amountToFinance,
+            //     tea: this.tea,
+            //     tna: this.tna,
+            //     capitalization: this.capitalization.code,
+            //     termInMonths: this.termInMonths,
+            //     lienInsurance: this.lienInsurance,
+            //     propertyInsurance: this.propertyInsurance,
+            //     appraisalExpenses: this.appraisalExpenses
+            // }});
+
+            await router.push({name: 'payments', params: {offerId: offerIdCurrent}})
           }
         },
         reject: () => {
@@ -592,7 +706,7 @@ export default defineComponent({
       });
     }
   }
-})
+}
 </script>
 <style scoped>
 div.row {
