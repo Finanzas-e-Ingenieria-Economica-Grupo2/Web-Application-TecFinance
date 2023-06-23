@@ -5,6 +5,10 @@ export class BankApiService {
         return http.get('/banks');
     }
 
+    getById(bankId){
+        return http.get(`/banks/${bankId}`);
+    }
+
     getByName(name) {
         return http.get(`/banks?name=${name}`)
             .then(response => {

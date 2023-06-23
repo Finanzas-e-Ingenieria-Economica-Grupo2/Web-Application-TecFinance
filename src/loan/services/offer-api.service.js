@@ -9,6 +9,10 @@ export class OfferApiService {
         return http.post('/offers', newOffer);
     }
 
+    getById(offerId){
+        return http.get(`/offers/${offerId}`);
+    }
+
     getOfferByUserId(userId){
         return http.get('/offers')
             .then(response => {

@@ -663,21 +663,21 @@ export default {
                   console.error("Error al conseguir el id de oferta actual:", error);
                 });
 
-            var offerSended = {
-              id: offerIdCurrent,
-              currency: this.currencyType,
-              interestRateType: this.interestRateType.code,
-              homeValue: this.homeValue,
-              initialFee: this.initialFee,
-              amountToFinance: this.amountToFinance,
-              tea: this.tea,
-              tna: this.tna,
-              capitalization: this.capitalization.code,
-              termInMonths: this.termInMonths,
-              lienInsurance: this.lienInsurance,
-              propertyInsurance: this.propertyInsurance,
-              appraisalExpenses: this.appraisalExpenses
-            };
+            // var offerSended = {
+            //   id: offerIdCurrent,
+            //   currency: this.currencyType,
+            //   interestRateType: this.interestRateType.code,
+            //   homeValue: this.homeValue,
+            //   initialFee: this.initialFee,
+            //   amountToFinance: this.amountToFinance,
+            //   tea: this.tea,
+            //   tna: this.tna,
+            //   capitalization: this.capitalization.code,
+            //   termInMonths: this.termInMonths,
+            //   lienInsurance: this.lienInsurance,
+            //   propertyInsurance: this.propertyInsurance,
+            //   appraisalExpenses: this.appraisalExpenses
+            // };
 
             // this.$router.push({
             //   name: 'payments',
