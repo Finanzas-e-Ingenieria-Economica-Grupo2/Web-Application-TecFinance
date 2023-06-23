@@ -8,8 +8,8 @@
            style="width: 25%">
           <template #body="{ data, field }">
             {{ field === 'initialBalance' || field === 'finalBalance' || field === 'interest'
-          || field === 'amortization' || field === 'fee' || field === 'totalFee'
-          || field === 'lienInsurance' || field === 'propertyInsurance' || field === 'valuationExpenses'?
+          || field === 'amortization' || field === 'quota' || field === 'totalQuota'
+          || field === 'lienInsurance' || field === 'propertyInsurance' || field === 'appraisalExpenses'?
               formatCurrency(data[field]) : data[field] }}
           </template>
           <template #editor="{ data, field }">
@@ -39,7 +39,8 @@ export default {
       offersService: null,
       banksService: null,
 
-      payments: null,
+      payments: [],
+      //payment: null,
       columns: [
         { field: 'currentPeriod', header: 'Periodo' },
         { field: 'tep', header: 'Tep' },
@@ -47,11 +48,11 @@ export default {
         { field: 'initialBalance', header: 'Saldo inicial' },
         { field: 'interest', header: 'Intereses' },
         { field: 'amortization', header: 'Amortización' },
-        { field: 'fee', header: 'Cuota' },
+        { field: 'quota', header: 'Cuota' },
         { field: 'lienInsurance', header: 'Seguro Desgravamen' },
         { field: 'propertyInsurance', header: 'Seguro de Inmueble' },
-        { field: 'valuationExpenses', header: 'Costos de valuación' },
-        { field: 'totalFee', header: 'Cuota Total' },
+        { field: 'appraisalExpenses', header: 'Costos de tasación' },
+        { field: 'totalQuota', header: 'Cuota Total' },
         { field: 'finalBalance', header: 'Saldo final' }
       ],
 
@@ -64,11 +65,21 @@ export default {
       amountToFinance: null,
       tea: null,
       tna: null,
-      capitalization: null,
+      capitalization: {
+        code: null,
+        days: null
+      },
+      frequency: {
+        code: null,
+        days: null
+      },
       termInMonths: null,
       lienInsurance: null,
       propertyInsurance: null,
-      appraisalExpenses: null
+      appraisalExpenses: null,
+
+      totalOfQuotas: null
+
     };
   },
   async created(){
@@ -90,7 +101,8 @@ export default {
           this.amountToFinance = offer.amountToFinance;
           this.tea = offer.tea;
           this.tna = offer.tna;
-          this.capitalization = offer.capitalization;
+          this.capitalization.code = offer.capitalization;
+          this.frequency.code = offer.frequency;
           this.termInMonths = offer.termInMonths;
         })
         .catch(error => {
@@ -107,6 +119,9 @@ export default {
         .catch(error => {
           console.error("Error al obtener datos del banco:", error);
         });
+
+    // función que cree toda la lista de payments
+    this.calculateSchedule();
   },
   mounted() {
 
@@ -144,6 +159,96 @@ export default {
     },
     formatCurrency(value) {
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+    },
+    calculateSchedule(){
+      switch (this.frequency.code){
+        case 'diaria': this.frequency.days = 1; break;
+        case 'quincenal': this.frequency.days = 15; break;
+        case 'mensual': this.frequency.days = 30; break;
+        case 'bimestral': this.frequency.days = 60; break;
+        case 'trimestral': this.frequency.days = 90; break;
+        case 'cuatrimestral': this.frequency.days = 120; break;
+        case 'semestral': this.frequency.days = 180; break;
+        case 'anual': this.frequency.days = 360;
+      }
+
+      if (this.interestRateType === 'TEA'){
+
+        // Initial calculations
+        var quotasPerYear = Math.floor(360 / this.frequency.days);
+        var numberOfYears = this.termInMonths / 12;
+        this.totalOfQuotas = quotasPerYear * numberOfYears;
+
+        // Declarar datos
+        var payment;
+        var countQuotas = 1;
+        var sumAmortizations = 0;
+        var tep = 0;
+        var initialBalance = 0;
+        var finalBalance = this.amountToFinance;
+        var interest = 0;
+        var quota = 0;
+        var totalQuota = 0;
+        var amortization = 0;
+        var lienInsuranceNumber = 0;
+        var propertyInsuranceNumber = 0;
+        var appraisalExpensesNumber = this.appraisalExpenses;
+
+        // Generar schedule
+        while(countQuotas <= this.totalOfQuotas){
+          if (countQuotas === this.totalOfQuotas){
+            // No puede tener periodo de gracia la ultima cuota
+          }
+
+          tep = ((1 + this.tea)**( this.frequency.days / 360 )) - 1;
+
+          initialBalance = finalBalance;
+
+          interest = parseFloat((tep * initialBalance).toFixed(2));
+
+          // que pasa si el plazo de gracia es total o parcial
+
+          // no hay plazo de gracia
+
+          //quota = parseFloat((initialBalance * (tep * (1 + tep)**(this.totalOfQuotas - countQuotas + 1)) /
+          //    ((1 + tep)**(this.totalOfQuotas - countQuotas + 1) - 1)).toFixed(2));
+
+          quota = initialBalance * (tep * (1 + tep)**(this.totalOfQuotas - countQuotas + 1)) /
+              ((1 + tep)**(this.totalOfQuotas - countQuotas + 1) - 1);
+
+          //console.log(quota);
+
+          amortization = quota - interest;
+
+          finalBalance = initialBalance - amortization;
+
+          lienInsuranceNumber = this.lienInsurance * initialBalance;
+          propertyInsuranceNumber = this.propertyInsurance * initialBalance;
+
+          totalQuota = quota + lienInsuranceNumber + propertyInsuranceNumber + appraisalExpensesNumber;
+
+          payment ={
+            currentPeriod: countQuotas,
+            tep: tep,
+            gracePeriod: 'S',
+            initialBalance: initialBalance,
+            finalBalance: finalBalance,
+            interest: interest,
+            amortization: amortization,
+            quota: quota,
+            totalQuota: totalQuota,
+            lienInsurance: lienInsuranceNumber,
+            propertyInsurance: propertyInsuranceNumber,
+            appraisalExpenses: appraisalExpensesNumber
+          }
+
+          countQuotas += 1;
+          sumAmortizations += amortization;
+
+          this.payments.push(payment);
+        }
+
+      }
     }
   }
 }
