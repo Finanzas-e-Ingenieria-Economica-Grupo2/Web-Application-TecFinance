@@ -9,16 +9,15 @@
           <template #body="{ data, field }">
             {{ field === 'initialBalance' || field === 'finalBalance' || field === 'interest'
           || field === 'amortization' || field === 'quota' || field === 'totalQuota'
-          || field === 'lienInsurance' || field === 'propertyInsurance' || field === 'appraisalExpenses'?
+          || field === 'lienInsurance' || field === 'propertyInsurance'?
               formatCurrency(data[field]) : data[field] }}
           </template>
           <template #editor="{ data, field }">
-            <template v-if="field === 'gracePeriod'">
+            <template v-if="field === 'gracePeriod' && data['currentPeriod'] !== payments.length">
               <pv-input-text v-model="data[field]" autofocus></pv-input-text>
             </template>
-            <template v-else>
-              <pv-input-number v-model="data[field]" mode="currency" currency="USD"
-                               locale="en-US" autofocus></pv-input-number>
+            <template v-if="field === 'tea'">
+              <pv-input-number v-model="data[field]" inputId="percent" suffix=" %" autofocus></pv-input-number>
             </template>
           </template>
         </pv-column>
@@ -40,9 +39,9 @@ export default {
       banksService: null,
 
       payments: [],
-      //payment: null,
       columns: [
         { field: 'currentPeriod', header: 'Periodo' },
+        { field: 'tea', header: 'Tea' },
         { field: 'tep', header: 'Tep' },
         { field: 'gracePeriod', header: 'Periodo de gracia' },
         { field: 'initialBalance', header: 'Saldo inicial' },
@@ -51,7 +50,6 @@ export default {
         { field: 'quota', header: 'Cuota' },
         { field: 'lienInsurance', header: 'Seguro Desgravamen' },
         { field: 'propertyInsurance', header: 'Seguro de Inmueble' },
-        { field: 'appraisalExpenses', header: 'Costos de tasación' },
         { field: 'totalQuota', header: 'Cuota Total' },
         { field: 'finalBalance', header: 'Saldo final' }
       ],
@@ -86,7 +84,7 @@ export default {
     //console.log(this.$route.params.offerId);
     this.paymentsService = new PaymentApiService();
     this.offersService = new OfferApiService();
-    this.banksService = new BankApiService(),
+    this.banksService = new BankApiService();
 
     //this.paymentsService.getByOfferId(this.offerId).then((data) => (this.payments = data));
     await this.offersService.getById(this.$route.params.offerId)
@@ -131,14 +129,22 @@ export default {
       let { data, newValue, field } = event;
 
       switch (field) {
-        case 'quantity':
-        case 'price':
+        case 'tea':
           if (this.isPositiveInteger(newValue)) data[field] = newValue;
           else event.preventDefault();
           break;
 
-        default:
-          if (newValue.trim().length > 0) data[field] = newValue;
+        case 'gracePeriod':
+          if (newValue.trim().length > 0) {
+            if (data[field] !== newValue.toUpperCase()){
+              if (newValue.toUpperCase() !== 'T' && newValue.toUpperCase() !== 'P'){
+                data[field] = 'S';
+              }else {
+                data[field] = newValue.toUpperCase();
+              }
+              this.changedPeriodGrace(data);
+            }
+          }
           else event.preventDefault();
           break;
       }
@@ -183,9 +189,10 @@ export default {
         var payment;
         var countQuotas = 1;
         var sumAmortizations = 0;
+        var tea = this.tea;
         var tep = 0;
         var initialBalance = 0;
-        var finalBalance = this.amountToFinance;
+        var finalBalance = this.amountToFinance + this.appraisalExpenses;
         var interest = 0;
         var quota = 0;
         var totalQuota = 0;
@@ -200,7 +207,7 @@ export default {
             // No puede tener periodo de gracia la ultima cuota
           }
 
-          tep = ((1 + this.tea)**( this.frequency.days / 360 )) - 1;
+          tep = ((1 + (tea/100))**( this.frequency.days / 360 )) - 1;
 
           initialBalance = finalBalance;
 
@@ -225,10 +232,11 @@ export default {
           lienInsuranceNumber = this.lienInsurance * initialBalance;
           propertyInsuranceNumber = this.propertyInsurance * initialBalance;
 
-          totalQuota = quota + lienInsuranceNumber + propertyInsuranceNumber + appraisalExpensesNumber;
+          totalQuota = quota + lienInsuranceNumber + propertyInsuranceNumber;
 
           payment ={
             currentPeriod: countQuotas,
+            tea: tea,
             tep: tep,
             gracePeriod: 'S',
             initialBalance: initialBalance,
@@ -249,7 +257,95 @@ export default {
         }
 
       }
+    },
+    changedPeriodGrace(_data){
+      // Initial calculations
+      var quotasPerYear = Math.floor(360 / this.frequency.days);
+      var numberOfYears = this.termInMonths / 12;
+      this.totalOfQuotas = quotasPerYear * numberOfYears;
+
+      // Declarar datos
+      var payment;
+      var countQuotas = _data['currentPeriod'];
+      var gracePeriod = _data['gracePeriod'];
+      var sumAmortizations = 0;
+      var tea = _data['tea'];
+      var tep = _data['tep'];
+      var initialBalance = 0;
+      var finalBalance = _data['initialBalance'];
+      var interest = 0;
+      var quota = 0;
+      var amortization = 0;
+      var lienInsuranceNumber = 0;
+      var propertyInsuranceNumber = 0;
+      var appraisalExpensesNumber = this.appraisalExpenses;
+      var totalQuota = 0;
+
+
+      // Generar schedule
+      while(countQuotas <= this.totalOfQuotas){
+
+        if (countQuotas === this.totalOfQuotas){
+          // No puede tener periodo de gracia la ultima cuota
+        }
+
+        tep = ((1 + (tea/100))**( this.frequency.days / 360 )) - 1;
+
+        // arreglar esto, en cada bucle se repetirá esto
+        //if (countQuotas === 1) initialBalance = this.amountToFinance + this.appraisalExpenses;
+        //else initialBalance = _data['initialBalance'];
+
+        initialBalance = finalBalance;
+
+        interest = parseFloat((tep * initialBalance).toFixed(2));
+
+        lienInsuranceNumber = this.lienInsurance * initialBalance;
+        propertyInsuranceNumber = this.propertyInsurance * initialBalance;
+
+        // que pasa si el plazo de gracia es total o parcial
+        if (gracePeriod === 'T'){
+          quota = 0;
+          amortization = 0;
+          totalQuota = 0;
+          finalBalance = initialBalance + interest + lienInsuranceNumber + propertyInsuranceNumber;
+        }else if (gracePeriod === 'P'){
+          quota = interest;
+          amortization = 0;
+          totalQuota = interest + lienInsuranceNumber + propertyInsuranceNumber;
+          finalBalance = initialBalance;
+        }else {
+          quota = initialBalance * (tep * (1 + tep)**(this.totalOfQuotas - countQuotas + 1)) /
+              ((1 + tep)**(this.totalOfQuotas - countQuotas + 1) - 1);
+
+          amortization = quota - interest;
+          finalBalance = initialBalance - amortization;
+          totalQuota = quota + lienInsuranceNumber + propertyInsuranceNumber;
+        }
+
+        payment ={
+          currentPeriod: countQuotas,
+          tea: tea,
+          tep: tep,
+          gracePeriod: gracePeriod,
+          initialBalance: initialBalance,
+          finalBalance: finalBalance,
+          interest: interest,
+          amortization: amortization,
+          quota: quota,
+          totalQuota: totalQuota,
+          lienInsurance: lienInsuranceNumber,
+          propertyInsurance: propertyInsuranceNumber,
+          appraisalExpenses: appraisalExpensesNumber
+        }
+
+        this.payments[countQuotas - 1] = payment;
+
+        gracePeriod = 'S';
+        countQuotas += 1;
+        //sumAmortizations += amortization;
+      }
     }
+
   }
 }
 </script>
