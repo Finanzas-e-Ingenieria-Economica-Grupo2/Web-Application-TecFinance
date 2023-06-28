@@ -17,7 +17,8 @@
               <pv-input-text v-model="data[field]" autofocus></pv-input-text>
             </template>
             <template v-if="field === 'tea'">
-              <pv-input-number v-model="data[field]" inputId="percent" suffix=" %" autofocus></pv-input-number>
+              <pv-input-number v-model="data[field]" inputId="percent" :maxFractionDigits="7"
+                               suffix=" %" autofocus></pv-input-number>
             </template>
           </template>
         </pv-column>
@@ -130,7 +131,10 @@ export default {
 
       switch (field) {
         case 'tea':
-          if (this.isPositiveInteger(newValue)) data[field] = newValue;
+          if (this.isPositive(newValue)) {
+            data[field] = newValue;
+            this.changedPeriodGraceOrTea(data);
+          }
           else event.preventDefault();
           break;
 
@@ -142,7 +146,7 @@ export default {
               }else {
                 data[field] = newValue.toUpperCase();
               }
-              this.changedPeriodGrace(data);
+              this.changedPeriodGraceOrTea(data);
             }
           }
           else event.preventDefault();
@@ -162,6 +166,10 @@ export default {
       var n = Math.floor(Number(str));
 
       return n !== Infinity && String(n) === str && n >= 0;
+    },
+    isPositive(val){
+      let n = parseFloat(val);
+      return !isNaN(n) && n >= 0;
     },
     formatCurrency(value) {
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
@@ -258,13 +266,10 @@ export default {
 
       }
     },
-    changedPeriodGrace(_data){
-      // Initial calculations
-      var quotasPerYear = Math.floor(360 / this.frequency.days);
-      var numberOfYears = this.termInMonths / 12;
-      this.totalOfQuotas = quotasPerYear * numberOfYears;
+    changedPeriodGraceOrTea(_data){
 
       // Declarar datos
+      var currentPayment;
       var payment;
       var countQuotas = _data['currentPeriod'];
       var gracePeriod = _data['gracePeriod'];
@@ -285,9 +290,9 @@ export default {
       // Generar schedule
       while(countQuotas <= this.totalOfQuotas){
 
-        if (countQuotas === this.totalOfQuotas){
-          // No puede tener periodo de gracia la ultima cuota
-        }
+        currentPayment = this.payments[countQuotas - 1];
+
+        gracePeriod = currentPayment.gracePeriod;
 
         tep = ((1 + (tea/100))**( this.frequency.days / 360 )) - 1;
 
@@ -340,12 +345,10 @@ export default {
 
         this.payments[countQuotas - 1] = payment;
 
-        gracePeriod = 'S';
         countQuotas += 1;
         //sumAmortizations += amortization;
       }
     }
-
   }
 }
 </script>

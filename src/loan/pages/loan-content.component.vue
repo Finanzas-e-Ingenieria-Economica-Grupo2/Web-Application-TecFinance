@@ -167,7 +167,8 @@
         </div>
         <div class="flex-1 flex align-items-center justify-content-end
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          <pv-input-number v-model="tea" inputId="percent" suffix=" %"></pv-input-number>
+          <pv-input-number v-model="tea" inputId="percent" :maxFractionDigits="7"
+                           suffix=" %"></pv-input-number>
           <pv-inline-message severity="info" @click="visibleTea = true"></pv-inline-message>
         </div>
       </div>
@@ -179,7 +180,8 @@
         </div>
         <div class="flex-1 flex align-items-center justify-content-end
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          <pv-input-number v-model="tna" inputId="percent" suffix=" %"></pv-input-number>
+          <pv-input-number v-model="tna" inputId="percent" :maxFractionDigits="7"
+                           suffix=" %"></pv-input-number>
           <pv-inline-message severity="info" @click="visibleTna = true"></pv-inline-message>
         </div>
       </div>
