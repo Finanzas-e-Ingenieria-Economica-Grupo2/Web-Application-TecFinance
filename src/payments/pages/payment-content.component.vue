@@ -311,7 +311,8 @@ export default {
     this.banksService = new BankApiService();
 
     //this.paymentsService.getByOfferId(this.offerId).then((data) => (this.payments = data));
-    await this.offersService.getById(this.$route.params.offerId)
+    let offerIdGotten = parseInt(this.$route.params.offerId);
+    await this.offersService.getById(offerIdGotten)
         .then(response => {
           const offer = response.data;
           this.offerId = offer.id;
@@ -696,7 +697,6 @@ export default {
         accept: async () => {
 
           for (let i = 0; i < this.payments.length; i++){
-            console.log("iteration");
             await this.paymentsService.add(this.payments[i])
                 .then(response => {
                   console.log("Pago agregado con éxito");
