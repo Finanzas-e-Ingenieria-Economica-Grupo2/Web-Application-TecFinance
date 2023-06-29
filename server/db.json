@@ -177,26 +177,6 @@
       "van": null,
       "tir": null,
       "id": 3
-    },
-    {
-      "userId": 1,
-      "bankId": 1,
-      "currency": "Soles",
-      "interestRateType": "TEA",
-      "homeValue": 100000,
-      "initialFee": 7500,
-      "amountToFinance": 65700,
-      "isHousingSupport": false,
-      "isHousingSustainable": true,
-      "tea": 5,
-      "tna": 0,
-      "capitalization": "diaria",
-      "frequency": "trimestral",
-      "termInMonths": 60,
-      "tcea": null,
-      "van": null,
-      "tir": null,
-      "id": 4
     }
   ],
   "payments": [

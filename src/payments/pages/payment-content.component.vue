@@ -57,7 +57,19 @@
         </div>
         <div class="flex-1 flex align-items-center justify-content-end
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          <pv-input-number v-model="tir" inputId="percent" :maxFractionDigits="7"
+          <pv-input-number v-model="tirPercentage" inputId="percent" :maxFractionDigits="7"
+                           suffix=" %" readonly></pv-input-number>
+        </div>
+      </div>
+
+      <div class="row flex bg-yellow-100">
+        <div class="flex-1 flex align-items-center justify-content-start
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
+          TCEA
+        </div>
+        <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
+          <pv-input-number v-model="tceaPercentage" inputId="percent" :maxFractionDigits="7"
                            suffix=" %" readonly></pv-input-number>
         </div>
       </div>
@@ -144,8 +156,11 @@ export default {
 
       totalOfQuotas: null,
 
-      tir:null,
-      van:null
+      tir: null,
+      tirPercentage: null,
+      van: null,
+      tcea: null,
+      tceaPercentage: null
     };
   },
   async created() {
@@ -190,6 +205,7 @@ export default {
     this.calculateSchedule();
     this.calculateVanCurrentTea();
     this.calculateVanAndTir();
+    this.calculateTcea();
   },
   mounted() {
 
@@ -205,6 +221,7 @@ export default {
             this.changedPeriodGraceOrTea(data);
             this.calculateVanCurrentTea();
             this.calculateVanAndTir();
+            this.calculateTcea();
           } else event.preventDefault();
           break;
 
@@ -219,6 +236,7 @@ export default {
               this.changedPeriodGraceOrTea(data);
               this.calculateVanCurrentTea();
               this.calculateVanAndTir();
+              this.calculateTcea();
             }
           } else event.preventDefault();
           break;
@@ -272,84 +290,278 @@ export default {
           this.frequency.days = 360;
       }
 
-      if (this.interestRateType === 'TEA') {
+      // Declarar datos
+      var payment;
+      var countQuotas = 1;
+      var sumAmortizations = 0;
+      var tea = 0;
+      var tep = 0;
+      var initialBalance = 0;
+      var finalBalance = this.amountToFinance + this.appraisalExpenses;
+      var interest = 0;
+      var quota = 0;
+      var totalQuota = 0;
+      var amortization = 0;
+      var lienInsuranceNumber = 0;
+      var propertyInsuranceNumber = 0;
+      var appraisalExpensesNumber = this.appraisalExpenses;
 
-        // Initial calculations
-        var quotasPerYear = Math.floor(360 / this.frequency.days);
-        var numberOfYears = this.termInMonths / 12;
-        this.totalOfQuotas = quotasPerYear * numberOfYears;
+      if (this.interestRateType === 'TEA'){
+        tea = this.tea / 100;
+      }
+      else {
+        switch (this.capitalization.code) {
+          case 'diaria':
+            this.capitalization.days = 1;
+            break;
+          case 'quincenal':
+            this.capitalization.days = 15;
+            break;
+          case 'mensual':
+            this.capitalization.days = 30;
+            break;
+          case 'bimestral':
+            this.capitalization.days = 60;
+            break;
+          case 'trimestral':
+            this.capitalization.days = 90;
+            break;
+          case 'cuatrimestral':
+            this.capitalization.days = 120;
+            break;
+          case 'semestral':
+            this.capitalization.days = 180;
+            break;
+          case 'anual':
+            this.capitalization.days = 360;
+        }
+        var tna = this.tna / 100;
+        var capitalizationDays = this.capitalization.days;
+        tea = ((1 + (tna / (360 / capitalizationDays)))**(360 / capitalizationDays)) - 1;
+      }
 
-        // Declarar datos
-        var payment;
-        var countQuotas = 1;
-        var sumAmortizations = 0;
-        var tea = this.tea;
-        var tep = 0;
-        var initialBalance = 0;
-        var finalBalance = this.amountToFinance + this.appraisalExpenses;
-        var interest = 0;
-        var quota = 0;
-        var totalQuota = 0;
-        var amortization = 0;
-        var lienInsuranceNumber = 0;
-        var propertyInsuranceNumber = 0;
-        var appraisalExpensesNumber = this.appraisalExpenses;
+      // Initial calculations
+      var quotasPerYear = Math.floor(360 / this.frequency.days);
+      var numberOfYears = this.termInMonths / 12;
+      this.totalOfQuotas = quotasPerYear * numberOfYears;
 
-        // Generar schedule
-        while (countQuotas <= this.totalOfQuotas) {
+      // Generar schedule
+      while (countQuotas <= this.totalOfQuotas) {
 
-          tep = ((1 + (tea / 100)) ** (this.frequency.days / 360)) - 1;
+        tep = ((1 + tea) ** (this.frequency.days / 360)) - 1;
 
-          initialBalance = finalBalance;
+        initialBalance = finalBalance;
 
-          interest = parseFloat((tep * initialBalance).toFixed(2));
+        interest = parseFloat((tep * initialBalance).toFixed(2));
 
-          // que pasa si el plazo de gracia es total o parcial
+        //quota = parseFloat((initialBalance * (tep * (1 + tep)**(this.totalOfQuotas - countQuotas + 1)) /
+        //    ((1 + tep)**(this.totalOfQuotas - countQuotas + 1) - 1)).toFixed(2));
 
-          // no hay plazo de gracia
+        quota = initialBalance * (tep * (1 + tep) ** (this.totalOfQuotas - countQuotas + 1)) /
+            ((1 + tep) ** (this.totalOfQuotas - countQuotas + 1) - 1);
 
-          //quota = parseFloat((initialBalance * (tep * (1 + tep)**(this.totalOfQuotas - countQuotas + 1)) /
-          //    ((1 + tep)**(this.totalOfQuotas - countQuotas + 1) - 1)).toFixed(2));
+        amortization = quota - interest;
 
-          quota = initialBalance * (tep * (1 + tep) ** (this.totalOfQuotas - countQuotas + 1)) /
-              ((1 + tep) ** (this.totalOfQuotas - countQuotas + 1) - 1);
+        finalBalance = initialBalance - amortization;
 
-          //console.log(quota);
+        lienInsuranceNumber = this.lienInsurance * initialBalance;
+        propertyInsuranceNumber = this.propertyInsurance * initialBalance;
 
-          amortization = quota - interest;
+        totalQuota = quota + lienInsuranceNumber + propertyInsuranceNumber;
 
-          finalBalance = initialBalance - amortization;
-
-          lienInsuranceNumber = this.lienInsurance * initialBalance;
-          propertyInsuranceNumber = this.propertyInsurance * initialBalance;
-
-          totalQuota = quota + lienInsuranceNumber + propertyInsuranceNumber;
-
-          payment = {
-            currentPeriod: countQuotas,
-            tea: tea,
-            tep: tep,
-            gracePeriod: 'S',
-            initialBalance: initialBalance,
-            finalBalance: finalBalance,
-            interest: interest,
-            amortization: amortization,
-            quota: quota,
-            totalQuota: totalQuota,
-            lienInsurance: lienInsuranceNumber,
-            propertyInsurance: propertyInsuranceNumber,
-            appraisalExpenses: appraisalExpensesNumber
-          }
-
-          countQuotas += 1;
-          sumAmortizations += amortization;
-
-          this.payments.push(payment);
+        payment = {
+          currentPeriod: countQuotas,
+          tea: tea * 100,
+          tep: tep,
+          gracePeriod: 'S',
+          initialBalance: initialBalance,
+          finalBalance: finalBalance,
+          interest: interest,
+          amortization: amortization,
+          quota: quota,
+          totalQuota: totalQuota,
+          lienInsurance: lienInsuranceNumber,
+          propertyInsurance: propertyInsuranceNumber,
+          appraisalExpenses: appraisalExpensesNumber
         }
 
-      } else{
+        countQuotas += 1;
+        sumAmortizations += amortization;
 
+        this.payments.push(payment);
       }
+
+      //
+      // if (this.interestRateType === 'TEA') {
+      //
+      //   // Initial calculations
+      //   var quotasPerYear = Math.floor(360 / this.frequency.days);
+      //   var numberOfYears = this.termInMonths / 12;
+      //   this.totalOfQuotas = quotasPerYear * numberOfYears;
+      //
+      //   // Declarar datos
+      //   var payment;
+      //   var countQuotas = 1;
+      //   var sumAmortizations = 0;
+      //   var tea = this.tea;
+      //   var tep = 0;
+      //   var initialBalance = 0;
+      //   var finalBalance = this.amountToFinance + this.appraisalExpenses;
+      //   var interest = 0;
+      //   var quota = 0;
+      //   var totalQuota = 0;
+      //   var amortization = 0;
+      //   var lienInsuranceNumber = 0;
+      //   var propertyInsuranceNumber = 0;
+      //   var appraisalExpensesNumber = this.appraisalExpenses;
+      //
+      //   // Generar schedule
+      //   while (countQuotas <= this.totalOfQuotas) {
+      //
+      //     tep = ((1 + (tea / 100)) ** (this.frequency.days / 360)) - 1;
+      //
+      //     initialBalance = finalBalance;
+      //
+      //     interest = parseFloat((tep * initialBalance).toFixed(2));
+      //
+      //     //quota = parseFloat((initialBalance * (tep * (1 + tep)**(this.totalOfQuotas - countQuotas + 1)) /
+      //     //    ((1 + tep)**(this.totalOfQuotas - countQuotas + 1) - 1)).toFixed(2));
+      //
+      //     quota = initialBalance * (tep * (1 + tep) ** (this.totalOfQuotas - countQuotas + 1)) /
+      //         ((1 + tep) ** (this.totalOfQuotas - countQuotas + 1) - 1);
+      //
+      //     amortization = quota - interest;
+      //
+      //     finalBalance = initialBalance - amortization;
+      //
+      //     lienInsuranceNumber = this.lienInsurance * initialBalance;
+      //     propertyInsuranceNumber = this.propertyInsurance * initialBalance;
+      //
+      //     totalQuota = quota + lienInsuranceNumber + propertyInsuranceNumber;
+      //
+      //     payment = {
+      //       currentPeriod: countQuotas,
+      //       tea: tea,
+      //       tep: tep,
+      //       gracePeriod: 'S',
+      //       initialBalance: initialBalance,
+      //       finalBalance: finalBalance,
+      //       interest: interest,
+      //       amortization: amortization,
+      //       quota: quota,
+      //       totalQuota: totalQuota,
+      //       lienInsurance: lienInsuranceNumber,
+      //       propertyInsurance: propertyInsuranceNumber,
+      //       appraisalExpenses: appraisalExpensesNumber
+      //     }
+      //
+      //     countQuotas += 1;
+      //     sumAmortizations += amortization;
+      //
+      //     this.payments.push(payment);
+      //   }
+      //
+      // }
+      // else{
+      //
+      //   switch (this.capitalization.code) {
+      //     case 'diaria':
+      //       this.capitalization.days = 1;
+      //       break;
+      //     case 'quincenal':
+      //       this.capitalization.days = 15;
+      //       break;
+      //     case 'mensual':
+      //       this.capitalization.days = 30;
+      //       break;
+      //     case 'bimestral':
+      //       this.capitalization.days = 60;
+      //       break;
+      //     case 'trimestral':
+      //       this.capitalization.days = 90;
+      //       break;
+      //     case 'cuatrimestral':
+      //       this.capitalization.days = 120;
+      //       break;
+      //     case 'semestral':
+      //       this.capitalization.days = 180;
+      //       break;
+      //     case 'anual':
+      //       this.capitalization.days = 360;
+      //   }
+      //
+      //   // Declarar datos
+      //   var tna = this.tna / 100;//no esta dividida entre 100
+      //   var capitalizationDays = this.capitalization.days;
+      //   var tea = ((1 + (tna / (360 / capitalizationDays)))**(this.frequency.days / capitalizationDays)) - 1
+      //
+      //   var payment;
+      //   var countQuotas = 1;
+      //   var sumAmortizations = 0;
+      //   var tep = 0;
+      //   var initialBalance = 0;
+      //   var finalBalance = this.amountToFinance + this.appraisalExpenses;
+      //   var interest = 0;
+      //   var quota = 0;
+      //   var totalQuota = 0;
+      //   var amortization = 0;
+      //   var lienInsuranceNumber = 0;
+      //   var propertyInsuranceNumber = 0;
+      //   var appraisalExpensesNumber = this.appraisalExpenses;
+      //
+      //   // Initial calculations
+      //   var quotasPerYear = Math.floor(360 / this.frequency.days);
+      //   var numberOfYears = this.termInMonths / 12;
+      //   this.totalOfQuotas = quotasPerYear * numberOfYears;
+      //
+      //   // Generar schedule
+      //   while (countQuotas <= this.totalOfQuotas) {
+      //
+      //     tep = ((1 + (tea / 100)) ** (this.frequency.days / 360)) - 1;
+      //
+      //     initialBalance = finalBalance;
+      //
+      //     interest = parseFloat((tep * initialBalance).toFixed(2));
+      //
+      //     //quota = parseFloat((initialBalance * (tep * (1 + tep)**(this.totalOfQuotas - countQuotas + 1)) /
+      //     //    ((1 + tep)**(this.totalOfQuotas - countQuotas + 1) - 1)).toFixed(2));
+      //
+      //     quota = initialBalance * (tep * (1 + tep) ** (this.totalOfQuotas - countQuotas + 1)) /
+      //         ((1 + tep) ** (this.totalOfQuotas - countQuotas + 1) - 1);
+      //
+      //     amortization = quota - interest;
+      //
+      //     finalBalance = initialBalance - amortization;
+      //
+      //     lienInsuranceNumber = this.lienInsurance * initialBalance;
+      //     propertyInsuranceNumber = this.propertyInsurance * initialBalance;
+      //
+      //     totalQuota = quota + lienInsuranceNumber + propertyInsuranceNumber;
+      //
+      //     payment = {
+      //       currentPeriod: countQuotas,
+      //       tea: tea,
+      //       tep: tep,
+      //       gracePeriod: 'S',
+      //       initialBalance: initialBalance,
+      //       finalBalance: finalBalance,
+      //       interest: interest,
+      //       amortization: amortization,
+      //       quota: quota,
+      //       totalQuota: totalQuota,
+      //       lienInsurance: lienInsuranceNumber,
+      //       propertyInsurance: propertyInsuranceNumber,
+      //       appraisalExpenses: appraisalExpensesNumber
+      //     }
+      //
+      //     countQuotas += 1;
+      //     sumAmortizations += amortization;
+      //
+      //     this.payments.push(payment);
+      //   }
+      //
+      // }
+      //
     },
     changedPeriodGraceOrTea(_data) {
 
@@ -489,7 +701,13 @@ export default {
       var array = this.payments.map(payment => -payment.totalQuota);
       array.unshift(this.amountToFinance);
       var df = this.calculateTir(array, 1, 0);
-      this.tir = df[df.length - 1].Mid * 100;
+      this.tir = df[df.length - 1].Mid;
+      this.tirPercentage = this.tir * 100;
+    },
+    calculateTcea(){
+      var tcep = this.tir;
+      this.tcea = (1 + tcep)**(360 / this.frequency.days) - 1;
+      this.tceaPercentage = this.tcea * 100;
     }
   }
 }
