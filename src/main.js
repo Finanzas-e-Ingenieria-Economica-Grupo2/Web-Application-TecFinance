@@ -30,7 +30,9 @@ import Card from "primevue/card";
 import SelectButton from 'primevue/selectbutton';
 import InlineMessage from 'primevue/inlinemessage';
 import ConfirmDialog from 'primevue/confirmdialog';
-
+import Password from 'primevue/password';
+import Divider from 'primevue/divider';
+import Checkbox from 'primevue/checkbox';
 
 // Router
 import router from "./router/index.js";
@@ -64,4 +66,7 @@ createApp(App)
     .component('pv-select-button', SelectButton)
     .component('pv-inline-message', InlineMessage)
     .component('pv-confirm-dialog', ConfirmDialog)
+    .component('pv-password', Password)
+    .component('pv-divider', Divider)
+    .component('pv-checkbox', Checkbox)
     .mount('#app')
