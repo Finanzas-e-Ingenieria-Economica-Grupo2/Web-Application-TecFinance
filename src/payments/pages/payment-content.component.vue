@@ -2,77 +2,208 @@
   <div class="global-container">
     <h1>Datos</h1>
     <div class="summary-container">
+
       <div class="row flex bg-yellow-100">
         <div class="flex-1 flex align-items-center justify-content-start
-                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-2 border-round">
+          Moneda
+          <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 border-round">
+            <pv-input-text v-model="currency" readonly></pv-input-text>
+          </div>
+        </div>
+        <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-2 border-round">
+          Tipo de tasa
+          <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 border-round">
+            <pv-input-text v-model="interestRateType" readonly></pv-input-text>
+          </div>
+        </div>
+      </div>
+
+      <div class="row flex bg-yellow-100">
+        <div class="flex-1 flex align-items-center justify-content-start
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-2 border-round">
           Valor de vivienda
+          <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 border-round">
+            <pv-input-number v-model="homeValue"
+                             :inputId="currency === 'Soles' ? 'currency-pen' : 'currency-us'"
+                             mode="currency"
+                             :currency="currency === 'Soles' ? 'PEN' : 'USD'"
+                             :locale="currency === 'Soles' ? 'es-PE' : 'en-US'" readonly>
+            </pv-input-number>
+          </div>
         </div>
         <div class="flex-1 flex align-items-center justify-content-end
-                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          <pv-input-number v-model="homeValue"
-                           :inputId="currency === 'Soles' ? 'currency-pen' : 'currency-us'"
-                           mode="currency"
-                           :currency="currency === 'Soles' ? 'PEN' : 'USD'"
-                           :locale="currency === 'Soles' ? 'es-PE' : 'en-US'" readonly>
-          </pv-input-number>
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-2 border-round">
+          Cuota inicial
+
+          <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 border-round">
+            <pv-input-number v-model="initialFee"
+                             :inputId="currency === 'Soles' ? 'currency-pen' : 'currency-us'"
+                             mode="currency"
+                             :currency="currency === 'Soles' ? 'PEN' : 'USD'"
+                             :locale="currency === 'Soles' ? 'es-PE' : 'en-US'" readonly>
+            </pv-input-number>
+          </div>
         </div>
       </div>
 
       <div class="row flex bg-yellow-100">
         <div class="flex-1 flex align-items-center justify-content-start
-                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-2 border-round">
+          Bono el Buen Pagador
+          <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 border-round">
+            <pv-input-number v-model="bbpTotal"
+                             :inputId="currency === 'Soles' ? 'currency-pen' : 'currency-us'"
+                             mode="currency"
+                             :currency="currency === 'Soles' ? 'PEN' : 'USD'"
+                             :locale="currency === 'Soles' ? 'es-PE' : 'en-US'" readonly>
+            </pv-input-number>
+          </div>
+        </div>
+        <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-2 border-round">
           Monto a financiar
+          <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 border-round">
+            <pv-input-number v-model="amountToFinance"
+                             :inputId="currency === 'Soles' ? 'currency-pen' : 'currency-us'"
+                             mode="currency"
+                             :currency="currency === 'Soles' ? 'PEN' : 'USD'"
+                             :locale="currency === 'Soles' ? 'es-PE' : 'en-US'" readonly>
+            </pv-input-number>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="interestRateType === 'TEA'" class="row flex bg-yellow-100">
+        <div class="flex-1 flex align-items-center justify-content-start
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-2 border-round">
+          Tasa Efectiva Anual
+          <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 border-round">
+            <pv-input-number v-model="tea" inputId="percent" :maxFractionDigits="7"
+                             suffix=" %" readonly></pv-input-number>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="interestRateType !== 'TEA'" class="row flex bg-yellow-100">
+        <div class="flex-1 flex align-items-center justify-content-start
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-2 border-round">
+          Tasa Nominal Anual
+          <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 border-round">
+            <pv-input-number v-model="tna" inputId="percent" :maxFractionDigits="7"
+                             suffix=" %" readonly></pv-input-number>
+          </div>
         </div>
         <div class="flex-1 flex align-items-center justify-content-end
-                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          <pv-input-number v-model="amountToFinance"
-                           :inputId="currency === 'Soles' ? 'currency-pen' : 'currency-us'"
-                           mode="currency"
-                           :currency="currency === 'Soles' ? 'PEN' : 'USD'"
-                           :locale="currency === 'Soles' ? 'es-PE' : 'en-US'" readonly>
-          </pv-input-number>
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-2 border-round">
+          Periodo de capitalización
+          <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 border-round">
+            <pv-input-text v-model="capitalization.code" readonly></pv-input-text>
+          </div>
         </div>
       </div>
 
       <div class="row flex bg-yellow-100">
         <div class="flex-1 flex align-items-center justify-content-start
-                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-2 border-round">
+          Frecuencia de pagos
+          <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 border-round">
+            <pv-input-text v-model="frequency.code" readonly></pv-input-text>
+          </div>
+        </div>
+        <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-2 border-round">
+          Seguro Degravamen Mensual
+          <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 border-round">
+            <pv-input-number v-model="lienInsurancePercentage" inputId="percent" suffix=" %"
+                             readonly :maxFractionDigits="7"></pv-input-number>
+          </div>
+        </div>
+      </div>
+
+      <div class="row flex bg-yellow-100">
+        <div class="flex-1 flex align-items-center justify-content-start
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-2 border-round">
+          Seguro de Inmueble Anual
+          <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 border-round">
+            <pv-input-number v-model="propertyInsurancePercentage" inputId="percent"
+                             suffix=" %" readonly :maxFractionDigits="7"></pv-input-number>
+          </div>
+        </div>
+        <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-2 border-round">
+          Gastos de tasación
+          <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 border-round">
+            <pv-input-number v-model="appraisalExpenses"
+                             :inputId="currency === 'Soles' ? 'currency-pen' : 'currency-us'"
+                             mode="currency"
+                             :currency="currency === 'Soles' ? 'PEN' : 'USD'"
+                             :locale="currency === 'Soles' ? 'es-PE' : 'en-US'" readonly>
+            </pv-input-number>
+          </div>
+        </div>
+      </div>
+
+      <div class="row flex bg-yellow-100">
+        <div class="flex-1 flex align-items-center justify-content-start
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-2 border-round">
+          Plazo (en meses)
+          <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 border-round">
+            <pv-input-number v-model="termInMonths" inputId="minmax-buttons" mode="decimal"
+                             readonly></pv-input-number>
+          </div>
+        </div>
+        <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-2 border-round">
           VAN
-        </div>
-        <div class="flex-1 flex align-items-center justify-content-end
-                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          <pv-input-number v-model="van"
-                           :inputId="currency === 'Soles' ? 'currency-pen' : 'currency-us'"
-                           mode="currency"
-                           :currency="currency === 'Soles' ? 'PEN' : 'USD'"
-                           :locale="currency === 'Soles' ? 'es-PE' : 'en-US'" readonly>
-          </pv-input-number>
+          <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 border-round">
+            <pv-input-number v-model="van"
+                             :inputId="currency === 'Soles' ? 'currency-pen' : 'currency-us'"
+                             mode="currency"
+                             :currency="currency === 'Soles' ? 'PEN' : 'USD'"
+                             :locale="currency === 'Soles' ? 'es-PE' : 'en-US'" readonly>
+            </pv-input-number>
+          </div>
         </div>
       </div>
 
       <div class="row flex bg-yellow-100">
         <div class="flex-1 flex align-items-center justify-content-start
-                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-2 border-round">
           TIR
+          <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 border-round">
+            <pv-input-number v-model="tirPercentage" inputId="percent" :maxFractionDigits="7"
+                             suffix=" %" readonly></pv-input-number>
+          </div>
         </div>
         <div class="flex-1 flex align-items-center justify-content-end
-                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          <pv-input-number v-model="tirPercentage" inputId="percent" :maxFractionDigits="7"
-                           suffix=" %" readonly></pv-input-number>
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-2 border-round">
+          TCEA
+          <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 border-round">
+            <pv-input-number v-model="tceaPercentage" inputId="percent" :maxFractionDigits="7"
+                             suffix=" %" readonly></pv-input-number>
+          </div>
         </div>
       </div>
 
-      <div class="row flex bg-yellow-100">
-        <div class="flex-1 flex align-items-center justify-content-start
-                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          TCEA
-        </div>
-        <div class="flex-1 flex align-items-center justify-content-end
-                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          <pv-input-number v-model="tceaPercentage" inputId="percent" :maxFractionDigits="7"
-                           suffix=" %" readonly></pv-input-number>
-        </div>
-      </div>
     </div>
 
     <h1>Cronograma</h1>
@@ -138,6 +269,7 @@ export default {
       interestRateType: null,
       homeValue: null,
       initialFee: null,
+      bbpTotal: null,
       amountToFinance: null,
       tea: null,
       tna: null,
@@ -151,7 +283,9 @@ export default {
       },
       termInMonths: null,
       lienInsurance: null,
+      lienInsurancePercentage: null,
       propertyInsurance: null,
+      propertyInsurancePercentage: null,
       appraisalExpenses: null,
 
       totalOfQuotas: null,
@@ -164,7 +298,6 @@ export default {
     };
   },
   async created() {
-    //console.log(this.$route.params.offerId);
     this.paymentsService = new PaymentApiService();
     this.offersService = new OfferApiService();
     this.banksService = new BankApiService();
@@ -180,6 +313,7 @@ export default {
           this.homeValue = offer.homeValue;
           this.initialFee = offer.initialFee;
           this.amountToFinance = offer.amountToFinance;
+          this.bbpTotal = offer.bbpTotal;
           this.tea = offer.tea;
           this.tna = offer.tna;
           this.capitalization.code = offer.capitalization;
@@ -194,7 +328,9 @@ export default {
         .then(response => {
           const bank = response.data;
           this.lienInsurance = bank.lienInsurance;
+          this.lienInsurancePercentage = this.lienInsurance * 100;
           this.propertyInsurance = bank.propertyInsurance;
+          this.propertyInsurancePercentage = this.propertyInsurance * 100;
           this.appraisalExpenses = bank.appraisalExpenses;
         })
         .catch(error => {
@@ -341,9 +477,13 @@ export default {
       }
 
       // Initial calculations
+      console.log(this.frequency.days);
       var quotasPerYear = Math.floor(360 / this.frequency.days);
+      console.log(quotasPerYear);
       var numberOfYears = this.termInMonths / 12;
+      console.log(numberOfYears);
       this.totalOfQuotas = quotasPerYear * numberOfYears;
+      console.log(this.totalOfQuotas);
 
       // Generar schedule
       while (countQuotas <= this.totalOfQuotas) {
@@ -390,178 +530,6 @@ export default {
 
         this.payments.push(payment);
       }
-
-      //
-      // if (this.interestRateType === 'TEA') {
-      //
-      //   // Initial calculations
-      //   var quotasPerYear = Math.floor(360 / this.frequency.days);
-      //   var numberOfYears = this.termInMonths / 12;
-      //   this.totalOfQuotas = quotasPerYear * numberOfYears;
-      //
-      //   // Declarar datos
-      //   var payment;
-      //   var countQuotas = 1;
-      //   var sumAmortizations = 0;
-      //   var tea = this.tea;
-      //   var tep = 0;
-      //   var initialBalance = 0;
-      //   var finalBalance = this.amountToFinance + this.appraisalExpenses;
-      //   var interest = 0;
-      //   var quota = 0;
-      //   var totalQuota = 0;
-      //   var amortization = 0;
-      //   var lienInsuranceNumber = 0;
-      //   var propertyInsuranceNumber = 0;
-      //   var appraisalExpensesNumber = this.appraisalExpenses;
-      //
-      //   // Generar schedule
-      //   while (countQuotas <= this.totalOfQuotas) {
-      //
-      //     tep = ((1 + (tea / 100)) ** (this.frequency.days / 360)) - 1;
-      //
-      //     initialBalance = finalBalance;
-      //
-      //     interest = parseFloat((tep * initialBalance).toFixed(2));
-      //
-      //     //quota = parseFloat((initialBalance * (tep * (1 + tep)**(this.totalOfQuotas - countQuotas + 1)) /
-      //     //    ((1 + tep)**(this.totalOfQuotas - countQuotas + 1) - 1)).toFixed(2));
-      //
-      //     quota = initialBalance * (tep * (1 + tep) ** (this.totalOfQuotas - countQuotas + 1)) /
-      //         ((1 + tep) ** (this.totalOfQuotas - countQuotas + 1) - 1);
-      //
-      //     amortization = quota - interest;
-      //
-      //     finalBalance = initialBalance - amortization;
-      //
-      //     lienInsuranceNumber = this.lienInsurance * initialBalance;
-      //     propertyInsuranceNumber = this.propertyInsurance * initialBalance;
-      //
-      //     totalQuota = quota + lienInsuranceNumber + propertyInsuranceNumber;
-      //
-      //     payment = {
-      //       currentPeriod: countQuotas,
-      //       tea: tea,
-      //       tep: tep,
-      //       gracePeriod: 'S',
-      //       initialBalance: initialBalance,
-      //       finalBalance: finalBalance,
-      //       interest: interest,
-      //       amortization: amortization,
-      //       quota: quota,
-      //       totalQuota: totalQuota,
-      //       lienInsurance: lienInsuranceNumber,
-      //       propertyInsurance: propertyInsuranceNumber,
-      //       appraisalExpenses: appraisalExpensesNumber
-      //     }
-      //
-      //     countQuotas += 1;
-      //     sumAmortizations += amortization;
-      //
-      //     this.payments.push(payment);
-      //   }
-      //
-      // }
-      // else{
-      //
-      //   switch (this.capitalization.code) {
-      //     case 'diaria':
-      //       this.capitalization.days = 1;
-      //       break;
-      //     case 'quincenal':
-      //       this.capitalization.days = 15;
-      //       break;
-      //     case 'mensual':
-      //       this.capitalization.days = 30;
-      //       break;
-      //     case 'bimestral':
-      //       this.capitalization.days = 60;
-      //       break;
-      //     case 'trimestral':
-      //       this.capitalization.days = 90;
-      //       break;
-      //     case 'cuatrimestral':
-      //       this.capitalization.days = 120;
-      //       break;
-      //     case 'semestral':
-      //       this.capitalization.days = 180;
-      //       break;
-      //     case 'anual':
-      //       this.capitalization.days = 360;
-      //   }
-      //
-      //   // Declarar datos
-      //   var tna = this.tna / 100;//no esta dividida entre 100
-      //   var capitalizationDays = this.capitalization.days;
-      //   var tea = ((1 + (tna / (360 / capitalizationDays)))**(this.frequency.days / capitalizationDays)) - 1
-      //
-      //   var payment;
-      //   var countQuotas = 1;
-      //   var sumAmortizations = 0;
-      //   var tep = 0;
-      //   var initialBalance = 0;
-      //   var finalBalance = this.amountToFinance + this.appraisalExpenses;
-      //   var interest = 0;
-      //   var quota = 0;
-      //   var totalQuota = 0;
-      //   var amortization = 0;
-      //   var lienInsuranceNumber = 0;
-      //   var propertyInsuranceNumber = 0;
-      //   var appraisalExpensesNumber = this.appraisalExpenses;
-      //
-      //   // Initial calculations
-      //   var quotasPerYear = Math.floor(360 / this.frequency.days);
-      //   var numberOfYears = this.termInMonths / 12;
-      //   this.totalOfQuotas = quotasPerYear * numberOfYears;
-      //
-      //   // Generar schedule
-      //   while (countQuotas <= this.totalOfQuotas) {
-      //
-      //     tep = ((1 + (tea / 100)) ** (this.frequency.days / 360)) - 1;
-      //
-      //     initialBalance = finalBalance;
-      //
-      //     interest = parseFloat((tep * initialBalance).toFixed(2));
-      //
-      //     //quota = parseFloat((initialBalance * (tep * (1 + tep)**(this.totalOfQuotas - countQuotas + 1)) /
-      //     //    ((1 + tep)**(this.totalOfQuotas - countQuotas + 1) - 1)).toFixed(2));
-      //
-      //     quota = initialBalance * (tep * (1 + tep) ** (this.totalOfQuotas - countQuotas + 1)) /
-      //         ((1 + tep) ** (this.totalOfQuotas - countQuotas + 1) - 1);
-      //
-      //     amortization = quota - interest;
-      //
-      //     finalBalance = initialBalance - amortization;
-      //
-      //     lienInsuranceNumber = this.lienInsurance * initialBalance;
-      //     propertyInsuranceNumber = this.propertyInsurance * initialBalance;
-      //
-      //     totalQuota = quota + lienInsuranceNumber + propertyInsuranceNumber;
-      //
-      //     payment = {
-      //       currentPeriod: countQuotas,
-      //       tea: tea,
-      //       tep: tep,
-      //       gracePeriod: 'S',
-      //       initialBalance: initialBalance,
-      //       finalBalance: finalBalance,
-      //       interest: interest,
-      //       amortization: amortization,
-      //       quota: quota,
-      //       totalQuota: totalQuota,
-      //       lienInsurance: lienInsuranceNumber,
-      //       propertyInsurance: propertyInsuranceNumber,
-      //       appraisalExpenses: appraisalExpensesNumber
-      //     }
-      //
-      //     countQuotas += 1;
-      //     sumAmortizations += amortization;
-      //
-      //     this.payments.push(payment);
-      //   }
-      //
-      // }
-      //
     },
     changedPeriodGraceOrTea(_data) {
 
@@ -673,7 +641,7 @@ export default {
       if (high > low) {
         mid = (high + low) / 2;
         npv = this.calculateVan(array, mid);
-        console.log(npv);
+        //console.log(npv);
         while (npv !== 0 && high.toFixed(6) !== low.toFixed(6)) {
           if (npv < 0) {
             low = mid;
@@ -686,11 +654,11 @@ export default {
             npv = this.calculateVan(array, mid);
             df.push({ Low: low, Mid: mid, High: high, NPV: npv.toFixed(4) });
           }
-          console.log(df[df.length-1]);
+          //console.log(df[df.length-1]);
         }
 
         df.push({ Low: low, Mid: mid, High: high, NPV: npv.toFixed(4) });
-        console.log(df[df.length-1]);
+        //console.log(df[df.length-1]);
       } else {
         return "'High' must be greater than the 'low' parameter";
       }

@@ -14,30 +14,6 @@
         </div>
       </div>
 
-<!--      <div class="row flex bg-yellow-100">
-        <div class="flex-1 flex align-items-center justify-content-start
-                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          # Periodos de gracia totales
-        </div>
-        <div class="flex-1 flex align-items-center justify-content-end
-                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          <pv-input-number v-model="amountTotalGracePeriod" inputId="minmax-buttons" mode="decimal" showButtons
-                           :min="0" :max="100"></pv-input-number>
-        </div>
-      </div>
-
-      <div class="row flex bg-yellow-100">
-        <div class="flex-1 flex align-items-center justify-content-start
-                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          # Periodos de gracia Parciales
-        </div>
-        <div class="flex-1 flex align-items-center justify-content-end
-                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          <pv-input-number v-model="amountPartialGracePeriod" inputId="minmax-buttons" mode="decimal" showButtons
-                           :min="0" :max="100"></pv-input-number>
-        </div>
-      </div>-->
-
       <div class="row flex bg-yellow-100">
         <div class="flex-1 flex align-items-center justify-content-start
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
@@ -419,8 +395,6 @@ export default {
   name: "loan-content",
   data() {
     return {
-      //amountTotalGracePeriod
-      //amountPartialGracePeriod
       homeValue: 0,
       currencyType: 'Soles',
       currencyOptions: ['Soles', 'Dólares'],
@@ -501,7 +475,10 @@ export default {
       homeValueError: null,
       teaError: null,
       tnaError: null,
-      capitalizationError: null
+      capitalizationError: null,
+
+      bankId: null,
+      userId: null
     }
   },
   created() {
@@ -509,6 +486,7 @@ export default {
     this.banksService.getByName('BBVA')
         .then(response => {
           this.bank = response
+          this.bankId = this.bank.id;
           this.minimumLoan = this.bank.minimumLoan;
           this.maximumLoan = this.bank.maximumLoan;
           this.lienInsurance = this.bank.lienInsurance;
@@ -519,6 +497,7 @@ export default {
           this.rangeInitialFee = this.bank.initialFeeBasedOnHomeValue;
         });
 
+    this.userId= this.$route.params.userId;
     this.offersService = new OfferApiService();
   },
   computed:{
@@ -660,13 +639,14 @@ export default {
             });
 
             var offer = {
-              userId: 1,
-              bankId: 1,
+              userId: this.userId,
+              bankId: this.bankId,
               currency: this.currencyType,
               interestRateType: this.interestRateType.code,
               homeValue: this.homeValue,
               initialFee: this.initialFee,
               amountToFinance: this.amountToFinance,
+              bbpTotal: this.bbpTotal,
               isHousingSupport: this.isHousingSupport === 'No' ? false : true,
               isHousingSustainable: this.isHousingSustainable === 'No' ? false : true,
               tea: this.tea,
@@ -689,7 +669,7 @@ export default {
 
             var offerIdCurrent = null;
 
-            await this.offersService.getOfferByUserId(1)
+            await this.offersService.getOfferByUserId(this.userId)
                 .then(response => {
                   console.log("Oferta obtenida con éxito");
                   offerIdCurrent = response.id;
@@ -698,7 +678,7 @@ export default {
                   console.error("Error al conseguir el id de oferta actual:", error);
                 });
 
-            await router.push({name: 'payments', params: {offerId: offerIdCurrent}})
+            await router.push({name: 'payments', params: {offerId: offerIdCurrent}});
           }
         },
         reject: () => {
