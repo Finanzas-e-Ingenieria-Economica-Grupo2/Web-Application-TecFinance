@@ -497,7 +497,7 @@ export default {
           this.rangeInitialFee = this.bank.initialFeeBasedOnHomeValue;
         });
 
-    this.userId= this.$route.params.userId;
+    this.userId = parseInt(this.$route.params.userId);
     this.offersService = new OfferApiService();
   },
   computed:{

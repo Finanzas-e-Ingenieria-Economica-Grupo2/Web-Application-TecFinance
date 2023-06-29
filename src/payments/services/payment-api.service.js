@@ -13,4 +13,8 @@ export class PaymentApiService {
                 return filteredPayments;
             });
     }
+
+    add(newPayment) {
+        return http.post('/payments', newPayment);
+    }
 }
