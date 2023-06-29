@@ -330,6 +330,27 @@
       "van": null,
       "tir": null,
       "id": 10
+    },
+    {
+      "userId": "3",
+      "bankId": 1,
+      "currency": "Soles",
+      "interestRateType": "TEA",
+      "homeValue": 100000,
+      "initialFee": 7500,
+      "amountToFinance": 71100,
+      "bbpTotal": 21400,
+      "isHousingSupport": false,
+      "isHousingSustainable": false,
+      "tea": 5,
+      "tna": 0,
+      "capitalization": "diaria",
+      "frequency": "trimestral",
+      "termInMonths": 9,
+      "tcea": null,
+      "van": null,
+      "tir": null,
+      "id": 11
     }
   ],
   "payments": [
@@ -380,6 +401,57 @@
       "lienInsurance": 16.4,
       "propertyInsurance": 18.4,
       "appraisalExpenses": 280
+    },
+    {
+      "offerId": 11,
+      "currentPeriod": 1,
+      "tea": 5,
+      "tep": 0.012272234429039353,
+      "gracePeriod": "S",
+      "initialBalance": 71365,
+      "finalBalance": 47866.230784589796,
+      "interest": 875.81,
+      "amortization": 23498.769215410204,
+      "quota": 24374.579215410206,
+      "totalQuota": 24427.567727910206,
+      "lienInsurance": 33.1204965,
+      "propertyInsurance": 19.868016,
+      "appraisalExpenses": 265,
+      "id": 4
+    },
+    {
+      "offerId": 11,
+      "currentPeriod": 2,
+      "tea": 5,
+      "tep": 0.012272234429039353,
+      "gracePeriod": "S",
+      "initialBalance": 47866.230784589796,
+      "finalBalance": 24079.08055584048,
+      "interest": 587.43,
+      "amortization": 23787.150228749317,
+      "quota": 24374.580228749317,
+      "totalQuota": 24410.120905106873,
+      "lienInsurance": 22.214717707128123,
+      "propertyInsurance": 13.325958650429799,
+      "appraisalExpenses": 265,
+      "id": 5
+    },
+    {
+      "offerId": 11,
+      "currentPeriod": 3,
+      "tea": 5,
+      "tep": 0.012272234429039353,
+      "gracePeriod": "S",
+      "initialBalance": 24079.08055584048,
+      "finalBalance": -0.004121416994166793,
+      "interest": 295.5,
+      "amortization": 24079.084677257473,
+      "quota": 24374.584677257473,
+      "totalQuota": 24392.463394570183,
+      "lienInsurance": 11.175101285965566,
+      "propertyInsurance": 6.703616026745989,
+      "appraisalExpenses": 265,
+      "id": 6
     }
   ]
 }

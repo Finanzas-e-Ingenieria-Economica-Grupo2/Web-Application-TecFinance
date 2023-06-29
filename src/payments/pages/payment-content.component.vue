@@ -231,6 +231,12 @@
           </template>
         </pv-column>
       </pv-data-table>
+      <pv-toast></pv-toast>
+      <pv-confirm-dialog></pv-confirm-dialog>
+      <div class="flex justify-content-center flex-wrap card-container bg-yellow-100">
+        <pv-button label="Guardar cronograma" class="m-2 px-5 py-3"
+                   @click="confirmSchedule()"></pv-button>
+      </div>
     </div>
   </div>
 </template>
@@ -238,6 +244,7 @@
 import {PaymentApiService} from "../services/payment-api.service.js";
 import {OfferApiService} from "../../loan/services/offer-api.service.js";
 import {BankApiService} from "../../loan/services/bank-api.service.js";
+import router from "../../router/index.js";
 
 export default {
   name: "payment-content",
@@ -263,6 +270,7 @@ export default {
         {field: 'finalBalance', header: 'Saldo final'}
       ],
 
+      userId: null,
       offerId: null,
       bankId: null,
       currency: null,
@@ -307,6 +315,7 @@ export default {
         .then(response => {
           const offer = response.data;
           this.offerId = offer.id;
+          this.userId = offer.userId;
           this.bankId = offer.bankId;
           this.currency = offer.currency;
           this.interestRateType = offer.interestRateType;
@@ -510,6 +519,7 @@ export default {
         totalQuota = quota + lienInsuranceNumber + propertyInsuranceNumber;
 
         payment = {
+          offerId: this.offerId,
           currentPeriod: countQuotas,
           tea: tea * 100,
           tep: tep,
@@ -593,6 +603,7 @@ export default {
         }
 
         payment = {
+          offerId: this.offerId,
           currentPeriod: countQuotas,
           tea: tea,
           tep: tep,
@@ -676,6 +687,31 @@ export default {
       var tcep = this.tir;
       this.tcea = (1 + tcep)**(360 / this.frequency.days) - 1;
       this.tceaPercentage = this.tcea * 100;
+    },
+    async confirmSchedule(){
+      this.$confirm.require({
+        message: '¿Estas seguro de querer proceder?',
+        header: 'Confirmación',
+        icon: 'pi pi-exclamation-triangle',
+        accept: async () => {
+
+          for (let i = 0; i < this.payments.length; i++){
+            console.log("iteration");
+            await this.paymentsService.add(this.payments[i])
+                .then(response => {
+                  console.log("Pago agregado con éxito");
+                })
+                .catch(error => {
+                  console.error("Error al agregar el pago:", error);
+                });
+          }
+
+          await router.push({name: 'loan', params: {userId: this.userId}});
+        },
+        reject: () => {
+
+        }
+      });
     }
   }
 }
