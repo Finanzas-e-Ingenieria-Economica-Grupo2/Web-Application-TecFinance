@@ -267,17 +267,6 @@
         </div>
       </div>
 
-      <div class="row flex bg-yellow-100">
-        <div class="flex-1 flex align-items-center justify-content-start
-                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          Tasa de Costo Efectiva Anual
-        </div>
-        <div class="flex-1 flex align-items-center justify-content-end
-                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
-          <pv-input-number v-model="tcea" inputId="percent" suffix=" %" readonly></pv-input-number>
-        </div>
-      </div>
-
     </div>
 
     <pv-toast></pv-toast>
