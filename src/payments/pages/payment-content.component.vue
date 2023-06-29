@@ -519,6 +519,10 @@ export default {
 
         totalQuota = quota + lienInsuranceNumber + propertyInsuranceNumber;
 
+        if (finalBalance < 0){
+          finalBalance = 0;
+        }
+
         payment = {
           offerId: this.offerId,
           currentPeriod: countQuotas,
@@ -603,6 +607,9 @@ export default {
           totalQuota = quota + lienInsuranceNumber + propertyInsuranceNumber;
         }
 
+        if (finalBalance < 0){
+          finalBalance = 0;
+        }
         payment = {
           offerId: this.offerId,
           currentPeriod: countQuotas,
