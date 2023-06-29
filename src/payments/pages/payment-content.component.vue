@@ -1,16 +1,81 @@
 <template>
   <div class="global-container">
+    <h1>Datos</h1>
+    <div class="summary-container">
+      <div class="row flex bg-yellow-100">
+        <div class="flex-1 flex align-items-center justify-content-start
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
+          Valor de vivienda
+        </div>
+        <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
+          <pv-input-number v-model="homeValue"
+                           :inputId="currency === 'Soles' ? 'currency-pen' : 'currency-us'"
+                           mode="currency"
+                           :currency="currency === 'Soles' ? 'PEN' : 'USD'"
+                           :locale="currency === 'Soles' ? 'es-PE' : 'en-US'" readonly>
+          </pv-input-number>
+        </div>
+      </div>
+
+      <div class="row flex bg-yellow-100">
+        <div class="flex-1 flex align-items-center justify-content-start
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
+          Monto a financiar
+        </div>
+        <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
+          <pv-input-number v-model="amountToFinance"
+                           :inputId="currency === 'Soles' ? 'currency-pen' : 'currency-us'"
+                           mode="currency"
+                           :currency="currency === 'Soles' ? 'PEN' : 'USD'"
+                           :locale="currency === 'Soles' ? 'es-PE' : 'en-US'" readonly>
+          </pv-input-number>
+        </div>
+      </div>
+
+      <div class="row flex bg-yellow-100">
+        <div class="flex-1 flex align-items-center justify-content-start
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
+          VAN
+        </div>
+        <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
+          <pv-input-number v-model="van"
+                           :inputId="currency === 'Soles' ? 'currency-pen' : 'currency-us'"
+                           mode="currency"
+                           :currency="currency === 'Soles' ? 'PEN' : 'USD'"
+                           :locale="currency === 'Soles' ? 'es-PE' : 'en-US'" readonly>
+          </pv-input-number>
+        </div>
+      </div>
+
+      <div class="row flex bg-yellow-100">
+        <div class="flex-1 flex align-items-center justify-content-start
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
+          TIR
+        </div>
+        <div class="flex-1 flex align-items-center justify-content-end
+                    bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
+          <pv-input-number v-model="tir" inputId="percent" :maxFractionDigits="7"
+                           suffix=" %" readonly></pv-input-number>
+        </div>
+      </div>
+    </div>
+
     <h1>Cronograma</h1>
     <div class="card p-fluid">
       <pv-data-table :value="payments" editMode="cell" @cell-edit-complete="onCellEditComplete"
-         tableClass="editable-cells-table" tableStyle="min-width: 50rem">
+                     tableClass="editable-cells-table" tableStyle="min-width: 50rem">
         <pv-column v-for="col of columns" :key="col.field" :field="col.field" :header="col.header"
-           style="width: 25%">
+                   style="width: 25%">
           <template #body="{ data, field }">
-            {{ field === 'initialBalance' || field === 'finalBalance' || field === 'interest'
-          || field === 'amortization' || field === 'quota' || field === 'totalQuota'
-          || field === 'lienInsurance' || field === 'propertyInsurance'?
-              formatCurrency(data[field]) : data[field] }}
+            {{
+              field === 'initialBalance' || field === 'finalBalance' || field === 'interest'
+              || field === 'amortization' || field === 'quota' || field === 'totalQuota'
+              || field === 'lienInsurance' || field === 'propertyInsurance' ?
+                  formatCurrency(data[field]) : data[field]
+            }}
           </template>
           <template #editor="{ data, field }">
             <template v-if="field === 'gracePeriod' && data['currentPeriod'] !== payments.length">
@@ -41,18 +106,18 @@ export default {
 
       payments: [],
       columns: [
-        { field: 'currentPeriod', header: 'Periodo' },
-        { field: 'tea', header: 'Tea' },
-        { field: 'tep', header: 'Tep' },
-        { field: 'gracePeriod', header: 'Periodo de gracia' },
-        { field: 'initialBalance', header: 'Saldo inicial' },
-        { field: 'interest', header: 'Intereses' },
-        { field: 'amortization', header: 'Amortización' },
-        { field: 'quota', header: 'Cuota' },
-        { field: 'lienInsurance', header: 'Seguro Desgravamen' },
-        { field: 'propertyInsurance', header: 'Seguro de Inmueble' },
-        { field: 'totalQuota', header: 'Cuota Total' },
-        { field: 'finalBalance', header: 'Saldo final' }
+        {field: 'currentPeriod', header: 'Periodo'},
+        {field: 'tea', header: 'Tea'},
+        {field: 'tep', header: 'Tep'},
+        {field: 'gracePeriod', header: 'Periodo de gracia'},
+        {field: 'initialBalance', header: 'Saldo inicial'},
+        {field: 'interest', header: 'Intereses'},
+        {field: 'amortization', header: 'Amortización'},
+        {field: 'quota', header: 'Cuota'},
+        {field: 'lienInsurance', header: 'Seguro Desgravamen'},
+        {field: 'propertyInsurance', header: 'Seguro de Inmueble'},
+        {field: 'totalQuota', header: 'Cuota Total'},
+        {field: 'finalBalance', header: 'Saldo final'}
       ],
 
       offerId: null,
@@ -77,11 +142,13 @@ export default {
       propertyInsurance: null,
       appraisalExpenses: null,
 
-      totalOfQuotas: null
+      totalOfQuotas: null,
 
+      tir:null,
+      van:null
     };
   },
-  async created(){
+  async created() {
     //console.log(this.$route.params.offerId);
     this.paymentsService = new PaymentApiService();
     this.offersService = new OfferApiService();
@@ -121,35 +188,39 @@ export default {
 
     // función que cree toda la lista de payments
     this.calculateSchedule();
+    this.calculateVanCurrentTea();
+    this.calculateVanAndTir();
   },
   mounted() {
 
   },
   methods: {
     onCellEditComplete(event) {
-      let { data, newValue, field } = event;
+      let {data, newValue, field} = event;
 
       switch (field) {
         case 'tea':
           if (this.isPositive(newValue)) {
             data[field] = newValue;
             this.changedPeriodGraceOrTea(data);
-          }
-          else event.preventDefault();
+            this.calculateVanCurrentTea();
+            this.calculateVanAndTir();
+          } else event.preventDefault();
           break;
 
         case 'gracePeriod':
           if (newValue.trim().length > 0) {
-            if (data[field] !== newValue.toUpperCase()){
-              if (newValue.toUpperCase() !== 'T' && newValue.toUpperCase() !== 'P'){
+            if (data[field] !== newValue.toUpperCase()) {
+              if (newValue.toUpperCase() !== 'T' && newValue.toUpperCase() !== 'P') {
                 data[field] = 'S';
-              }else {
+              } else {
                 data[field] = newValue.toUpperCase();
               }
               this.changedPeriodGraceOrTea(data);
+              this.calculateVanCurrentTea();
+              this.calculateVanAndTir();
             }
-          }
-          else event.preventDefault();
+          } else event.preventDefault();
           break;
       }
     },
@@ -167,26 +238,41 @@ export default {
 
       return n !== Infinity && String(n) === str && n >= 0;
     },
-    isPositive(val){
+    isPositive(val) {
       let n = parseFloat(val);
       return !isNaN(n) && n >= 0;
     },
     formatCurrency(value) {
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+      return new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(value);
     },
-    calculateSchedule(){
-      switch (this.frequency.code){
-        case 'diaria': this.frequency.days = 1; break;
-        case 'quincenal': this.frequency.days = 15; break;
-        case 'mensual': this.frequency.days = 30; break;
-        case 'bimestral': this.frequency.days = 60; break;
-        case 'trimestral': this.frequency.days = 90; break;
-        case 'cuatrimestral': this.frequency.days = 120; break;
-        case 'semestral': this.frequency.days = 180; break;
-        case 'anual': this.frequency.days = 360;
+    calculateSchedule() {
+      switch (this.frequency.code) {
+        case 'diaria':
+          this.frequency.days = 1;
+          break;
+        case 'quincenal':
+          this.frequency.days = 15;
+          break;
+        case 'mensual':
+          this.frequency.days = 30;
+          break;
+        case 'bimestral':
+          this.frequency.days = 60;
+          break;
+        case 'trimestral':
+          this.frequency.days = 90;
+          break;
+        case 'cuatrimestral':
+          this.frequency.days = 120;
+          break;
+        case 'semestral':
+          this.frequency.days = 180;
+          break;
+        case 'anual':
+          this.frequency.days = 360;
       }
 
-      if (this.interestRateType === 'TEA'){
+      if (this.interestRateType === 'TEA') {
 
         // Initial calculations
         var quotasPerYear = Math.floor(360 / this.frequency.days);
@@ -210,12 +296,9 @@ export default {
         var appraisalExpensesNumber = this.appraisalExpenses;
 
         // Generar schedule
-        while(countQuotas <= this.totalOfQuotas){
-          if (countQuotas === this.totalOfQuotas){
-            // No puede tener periodo de gracia la ultima cuota
-          }
+        while (countQuotas <= this.totalOfQuotas) {
 
-          tep = ((1 + (tea/100))**( this.frequency.days / 360 )) - 1;
+          tep = ((1 + (tea / 100)) ** (this.frequency.days / 360)) - 1;
 
           initialBalance = finalBalance;
 
@@ -228,8 +311,8 @@ export default {
           //quota = parseFloat((initialBalance * (tep * (1 + tep)**(this.totalOfQuotas - countQuotas + 1)) /
           //    ((1 + tep)**(this.totalOfQuotas - countQuotas + 1) - 1)).toFixed(2));
 
-          quota = initialBalance * (tep * (1 + tep)**(this.totalOfQuotas - countQuotas + 1)) /
-              ((1 + tep)**(this.totalOfQuotas - countQuotas + 1) - 1);
+          quota = initialBalance * (tep * (1 + tep) ** (this.totalOfQuotas - countQuotas + 1)) /
+              ((1 + tep) ** (this.totalOfQuotas - countQuotas + 1) - 1);
 
           //console.log(quota);
 
@@ -242,7 +325,7 @@ export default {
 
           totalQuota = quota + lienInsuranceNumber + propertyInsuranceNumber;
 
-          payment ={
+          payment = {
             currentPeriod: countQuotas,
             tea: tea,
             tep: tep,
@@ -264,9 +347,11 @@ export default {
           this.payments.push(payment);
         }
 
+      } else{
+
       }
     },
-    changedPeriodGraceOrTea(_data){
+    changedPeriodGraceOrTea(_data) {
 
       // Declarar datos
       var currentPayment;
@@ -288,13 +373,13 @@ export default {
 
 
       // Generar schedule
-      while(countQuotas <= this.totalOfQuotas){
+      while (countQuotas <= this.totalOfQuotas) {
 
         currentPayment = this.payments[countQuotas - 1];
 
         gracePeriod = currentPayment.gracePeriod;
 
-        tep = ((1 + (tea/100))**( this.frequency.days / 360 )) - 1;
+        tep = ((1 + (tea / 100)) ** (this.frequency.days / 360)) - 1;
 
         // arreglar esto, en cada bucle se repetirá esto
         //if (countQuotas === 1) initialBalance = this.amountToFinance + this.appraisalExpenses;
@@ -308,26 +393,26 @@ export default {
         propertyInsuranceNumber = this.propertyInsurance * initialBalance;
 
         // que pasa si el plazo de gracia es total o parcial
-        if (gracePeriod === 'T'){
+        if (gracePeriod === 'T') {
           quota = 0;
           amortization = 0;
           totalQuota = 0;
           finalBalance = initialBalance + interest + lienInsuranceNumber + propertyInsuranceNumber;
-        }else if (gracePeriod === 'P'){
+        } else if (gracePeriod === 'P') {
           quota = interest;
           amortization = 0;
           totalQuota = interest + lienInsuranceNumber + propertyInsuranceNumber;
           finalBalance = initialBalance;
-        }else {
-          quota = initialBalance * (tep * (1 + tep)**(this.totalOfQuotas - countQuotas + 1)) /
-              ((1 + tep)**(this.totalOfQuotas - countQuotas + 1) - 1);
+        } else {
+          quota = initialBalance * (tep * (1 + tep) ** (this.totalOfQuotas - countQuotas + 1)) /
+              ((1 + tep) ** (this.totalOfQuotas - countQuotas + 1) - 1);
 
           amortization = quota - interest;
           finalBalance = initialBalance - amortization;
           totalQuota = quota + lienInsuranceNumber + propertyInsuranceNumber;
         }
 
-        payment ={
+        payment = {
           currentPeriod: countQuotas,
           tea: tea,
           tep: tep,
@@ -348,6 +433,63 @@ export default {
         countQuotas += 1;
         //sumAmortizations += amortization;
       }
+    },
+    calculateVanCurrentTea(){
+      var array = this.payments.map(payment => -payment.totalQuota);
+      array.unshift(this.amountToFinance);
+      let van = 0.0;
+      van += array[0];
+      for (let i = 1; i < array.length; i++) {
+          van += array[i] / Math.pow(1 + (this.payments[i-1].tea / 100), i);
+      }
+      this.van = van;
+    },
+    calculateVan(array, rate){
+      let van = 0.0;
+      for (let i = 0; i < array.length; i++) {
+        van += array[i] / Math.pow(1 + rate, i);
+      }
+      return van;
+    },
+    calculateTir(array, _high, _low){
+      var df = [];
+      var high = _high
+      var low = _low
+      var mid = 0;
+      var npv = -1;
+
+      if (high > low) {
+        mid = (high + low) / 2;
+        npv = this.calculateVan(array, mid);
+        console.log(npv);
+        while (npv !== 0 && high.toFixed(6) !== low.toFixed(6)) {
+          if (npv < 0) {
+            low = mid;
+            mid = (high + low) / 2;
+            npv = this.calculateVan(array, mid);
+            df.push({ Low: low, Mid: mid, High: high, NPV: npv.toFixed(4) });
+          } else {
+            high = mid;
+            mid = (high + low) / 2;
+            npv = this.calculateVan(array, mid);
+            df.push({ Low: low, Mid: mid, High: high, NPV: npv.toFixed(4) });
+          }
+          console.log(df[df.length-1]);
+        }
+
+        df.push({ Low: low, Mid: mid, High: high, NPV: npv.toFixed(4) });
+        console.log(df[df.length-1]);
+      } else {
+        return "'High' must be greater than the 'low' parameter";
+      }
+
+      return df;
+    },
+    calculateVanAndTir(){
+      var array = this.payments.map(payment => -payment.totalQuota);
+      array.unshift(this.amountToFinance);
+      var df = this.calculateTir(array, 1, 0);
+      this.tir = df[df.length - 1].Mid * 100;
     }
   }
 }

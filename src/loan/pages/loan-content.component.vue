@@ -263,7 +263,7 @@
         <div class="flex-1 flex align-items-center justify-content-end
                     bg-yellow-500 font-bold text-gray-900 m-2 px-5 py-3 border-round">
           <pv-input-number v-model="termInMonths" inputId="minmax-buttons" mode="decimal" showButtons
-                           :min="60" :max="300"></pv-input-number>
+                           :min="1" :max="300"></pv-input-number>
         </div>
       </div>
 
@@ -708,40 +708,6 @@ export default {
                 .catch(error => {
                   console.error("Error al conseguir el id de oferta actual:", error);
                 });
-
-            // var offerSended = {
-            //   id: offerIdCurrent,
-            //   currency: this.currencyType,
-            //   interestRateType: this.interestRateType.code,
-            //   homeValue: this.homeValue,
-            //   initialFee: this.initialFee,
-            //   amountToFinance: this.amountToFinance,
-            //   tea: this.tea,
-            //   tna: this.tna,
-            //   capitalization: this.capitalization.code,
-            //   termInMonths: this.termInMonths,
-            //   lienInsurance: this.lienInsurance,
-            //   propertyInsurance: this.propertyInsurance,
-            //   appraisalExpenses: this.appraisalExpenses
-            // };
-
-            // this.$router.push({
-            //   name: 'payments',
-            //   props: {
-            //     offerId: offerIdCurrent,
-            //     currency: this.currencyType,
-            //     interestRateType: this.interestRateType.code,
-            //     homeValue: this.homeValue,
-            //     initialFee: this.initialFee,
-            //     amountToFinance: this.amountToFinance,
-            //     tea: this.tea,
-            //     tna: this.tna,
-            //     capitalization: this.capitalization.code,
-            //     termInMonths: this.termInMonths,
-            //     lienInsurance: this.lienInsurance,
-            //     propertyInsurance: this.propertyInsurance,
-            //     appraisalExpenses: this.appraisalExpenses
-            // }});
 
             await router.push({name: 'payments', params: {offerId: offerIdCurrent}})
           }
