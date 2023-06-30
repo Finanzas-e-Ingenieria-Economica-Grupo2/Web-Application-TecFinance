@@ -71,7 +71,7 @@
           Monto a financiar
           <div class="flex-1 flex align-items-center justify-content-end
                     bg-yellow-500 font-bold text-gray-900 border-round">
-            <pv-input-number v-model="amountToFinance"
+            <pv-input-number v-model="amountToFinancePlusAppraisalExpenses"
                              :inputId="currency === 'Soles' ? 'currency-pen' : 'currency-us'"
                              mode="currency"
                              :currency="currency === 'Soles' ? 'PEN' : 'USD'"
@@ -257,8 +257,8 @@ export default {
       payments: [],
       columns: [
         {field: 'currentPeriod', header: 'Periodo'},
-        {field: 'tea', header: 'Tea'},
-        {field: 'tep', header: 'Tep'},
+        {field: 'tea', header: 'Tea %'},
+        {field: 'tep', header: 'Tep %'},
         {field: 'gracePeriod', header: 'Periodo de gracia'},
         {field: 'initialBalance', header: 'Saldo inicial'},
         {field: 'interest', header: 'Intereses'},
@@ -302,7 +302,9 @@ export default {
       tirPercentage: null,
       van: null,
       tcea: null,
-      tceaPercentage: null
+      tceaPercentage: null,
+
+      amountToFinancePlusAppraisalExpenses: null
     };
   },
   async created() {
@@ -347,6 +349,7 @@ export default {
           console.error("Error al obtener datos del banco:", error);
         });
 
+    this.amountToFinancePlusAppraisalExpenses = this.appraisalExpenses + this.amountToFinance;
     // función que cree toda la lista de payments
     this.calculateSchedule();
     this.calculateVanCurrentTea();
@@ -515,7 +518,7 @@ export default {
         finalBalance = initialBalance - amortization;
 
         lienInsuranceNumber = this.lienInsurance * initialBalance;
-        propertyInsuranceNumber = this.propertyInsurance * initialBalance;
+        propertyInsuranceNumber = this.propertyInsurance * this.homeValue;
 
         totalQuota = quota + lienInsuranceNumber + propertyInsuranceNumber;
 
@@ -527,7 +530,7 @@ export default {
           offerId: this.offerId,
           currentPeriod: countQuotas,
           tea: tea * 100,
-          tep: tep,
+          tep: (tep * 100).toFixed(3),
           gracePeriod: 'S',
           initialBalance: initialBalance,
           finalBalance: finalBalance,
@@ -585,7 +588,7 @@ export default {
         interest = parseFloat((tep * initialBalance).toFixed(2));
 
         lienInsuranceNumber = this.lienInsurance * initialBalance;
-        propertyInsuranceNumber = this.propertyInsurance * initialBalance;
+        propertyInsuranceNumber = this.propertyInsurance * this.homeValue;
 
         // que pasa si el plazo de gracia es total o parcial
         if (gracePeriod === 'T') {
